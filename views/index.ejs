@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script src="/socket.io/socket.io.js" defer></script>
+<style>
+    body {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        row-gap:10px;
+    }
+
+    h1{
+        text-align:center
+    }
+
+    button {
+      background-color: rgb(227, 142, 227);
+      color: white;
+      padding: 10px 20px;
+      margin-right: 50px;
+      font-size:medium;
+    }
+
+    #video-grid {
+      background-color:black;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 10px;
+    }
+
+    video {
+        transform: scaleX(-1);
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    h {
+        font-size:20px;
+    }
+</style>
+<meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Main Page</title>
+</head>
+<body>
+  <h1>Welcome to FIT</h1>
+  <div id="video-grid"></div>
+  <form action="/create" method="get">
+    <button type="submit">Create New Room</button>
+  </form>
+  <h>Join Meeting:<input type="text" id="link-input" placeholder="Paste a link here"></h>
+  <script>
+    // Get the video grid element
+    const videoGrid = document.getElementById('video-grid');
+
+    // Function to start accessing the camera and display video
+    async function startVideo() {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+
+        // Create a new video element for each camera track
+        stream.getVideoTracks().forEach((track) => {
+          const videoElement = document.createElement('video');
+          videoElement.srcObject = new MediaStream([track]);
+          videoElement.autoplay = true;
+          videoElement.playsinline = true;
+          videoGrid.appendChild(videoElement);
+        });
+      } catch (error) {
+        console.error('Error accessing camera:', error);
+      }
+    }
+
+    // Call the startVideo function to initiate camera access
+    startVideo();
+
+    const linkInput = document.getElementById('link-input');
+
+    // Add an event listener for the paste event
+    linkInput.addEventListener('paste', handlePaste);
+
+    // Handle the paste event
+    function handlePaste(event) {
+        const clipboardData = event.clipboardData || window.clipboardData;
+        const pastedData = clipboardData.getData('text');
+
+        // Check if the pasted data is a valid URL
+        if (isUrlValid(pastedData)) {
+            // Redirect the user to the pasted URL
+            window.location.href = pastedData;
+        }
+    }
+
+    // Helper function to check if a string is a valid URL
+    function isUrlValid(url) {
+    try {
+        new URL(url);
+        return true;
+    } catch (error) {
+        return false;
+    }
+    }
+  </script>
+</body>
+</html>
