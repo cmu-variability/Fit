@@ -8,7 +8,7 @@ This repository contains a prototype application built with Express, Socket.IO, 
 Before running the prototype, ensure you have the following installed:
 - Node.js: https://nodejs.org (version 12 or later)
 - npm (Node Package Manager): Included with Node.js installation
-- PeerJS: Install globally using npm with the following below
+- PeerJS: Install globally using npm
 
 ## Dependencies
 - Express: Fast, unopinionated, minimalist web framework for Node.js
