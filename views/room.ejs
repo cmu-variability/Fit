@@ -46,16 +46,48 @@
       border-radius: 10px;
     }
 
+    #dropdown {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
 
   </style>
 </head>
 <body>
 
   <div id="video-grid"></div>
+  <div id="toggle-container">
+    <label>
+      <input type="checkbox" id="toggle-mic" checked>
+      <span>Microphone</span>
+    </label>
+    <label>
+      <input type="checkbox" id="toggle-camera" checked>
+      <span>Camera</span>
+    </label>
+  </div>
   <div class="container">
   <button id="MarkButton">Mark Critical Moment</button>
   <button id="copyButton">Copy Invite Link</button>
   <button id="leaveCallButton">Leave Call</button>
+  </div>
+  <div id="dropdown">
+    <!-- Audio Device Dropdown -->
+  <label for="audio-device-dropdown">Select Audio Device:</label>
+  <select id="audio-device-dropdown">
+    <option value="" selected disabled>Choose Audio Device</option>
+    <!-- Populate the options dynamically using JavaScript -->
+  </select>
+
+  <!-- Video Device Dropdown -->
+  <label for="video-device-dropdown">Select Video Device:</label>
+  <select id="video-device-dropdown">
+    <option value="" selected disabled>Choose Video Device</option>
+    <!-- Populate the options dynamically using JavaScript -->
+  </select>
   </div>
 </body>
 </html>
