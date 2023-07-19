@@ -50,11 +50,15 @@
 </head>
 <body>
   <h1>Welcome to FIT</h1>
+
   <div id="video-grid"></div>
+
   <form action="/create" method="get">
     <button type="submit">Create New Room</button>
   </form>
+
   <h>Join Meeting: <input type="text" id="link-input" placeholder="Paste meeting link here"></h>
+
   <script>
     // Get the video grid element
     const videoGrid = document.getElementById('video-grid');
@@ -92,8 +96,12 @@
 
         // Check if the pasted data is a valid URL
         if (isUrlValid(pastedData)) {
+          const url= new URL(clipboardData);
+          if (activeRooms.hasOwnProperty(url.searchParams.roomId)){
             // Redirect the user to the pasted URL
             window.location.href = pastedData;
+          }
+          else {console.error('Error accessing camera:', error)}
         }
     }
 
@@ -107,5 +115,6 @@
     }
     }
   </script>
+  
 </body>
 </html>

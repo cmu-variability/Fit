@@ -17,7 +17,7 @@
       display: grid;
       justify-content: center;
       align-items: center;
-      grid-template-columns: repeat(auto-fill, 400px);
+      grid-template-columns: repeat(auto-fill, 450px);
       grid-auto-rows: 300px;
       gap: 10px;
     }
@@ -36,7 +36,6 @@
       height: 100px;
     }
 
-    /* CSS styles */
     button {
       background-color: rgb(227, 142, 227);
       color: white;
@@ -45,49 +44,39 @@
       font-size:medium;
       border-radius: 10px;
     }
-
-    #dropdown {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-    }
-
-
   </style>
 </head>
 <body>
-
   <div id="video-grid"></div>
-  <div id="toggle-container">
+
+  <div id="device adjust">
+    <!--mute-->
     <label>
       <input type="checkbox" id="toggle-mic" checked>
       <span>Microphone</span>
     </label>
+      <!-- Audio Device Dropdown -->
+    <label for="audio-device-dropdown"></label>
+    <select id="audio-device-dropdown">
+      <option value="" selected disabled></option>
+    </select>
+    <!--turn off camera-->
     <label>
       <input type="checkbox" id="toggle-camera" checked>
       <span>Camera</span>
     </label>
+    <!-- Video Device Dropdown -->
+    <label for="video-device-dropdown"></label>
+    <select id="video-device-dropdown">
+      <option value="" selected disabled></option>
+    </select>
   </div>
-  <div class="container">
-  <button id="MarkButton">Mark Critical Moment</button>
-  <button id="copyButton">Copy Invite Link</button>
-  <button id="leaveCallButton">Leave Call</button>
-  </div>
-  <div id="dropdown">
-    <!-- Audio Device Dropdown -->
-  <label for="audio-device-dropdown">Select Audio Device:</label>
-  <select id="audio-device-dropdown">
-    <option value="" selected disabled>Choose Audio Device</option>
-    <!-- Populate the options dynamically using JavaScript -->
-  </select>
 
-  <!-- Video Device Dropdown -->
-  <label for="video-device-dropdown">Select Video Device:</label>
-  <select id="video-device-dropdown">
-    <option value="" selected disabled>Choose Video Device</option>
-    <!-- Populate the options dynamically using JavaScript -->
-  </select>
+  <div class="container">
+    <button id="MarkButton">Mark Critical Moment</button>
+    <button id="copyButton">Copy Invite Link</button>
+    <button id="leaveCallButton">Leave Call</button>
   </div>
+
 </body>
 </html>

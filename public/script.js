@@ -113,42 +113,6 @@ toggleCamera.addEventListener('click', () => {
   toggleCameraStream();
 });
 
-
-
-
-// const toggleMicButton = document.getElementById('toggle-mic');
-// let isMicOn = true;
-
-// toggleMicButton.addEventListener('click', () => {
-//   if (mediaStream) {
-//     const audioTrack = mediaStream.getAudioTracks()[0];
-//     isMicOn = !isMicOn;
-
-//     // Enable or disable the audio track based on the microphone state
-//     audioTrack.enabled = isMicOn;
-
-//     // Update the UI based on the microphone state
-//     toggleMicButton.innerText = isMicOn ? 'Mute Microphone' : 'Unmute Microphone';
-//   }
-// });
-
-// const toggleCameraButton = document.getElementById('toggle-camera');
-// let isCameraOn = true;
-
-// toggleCameraButton.addEventListener('click', () => {
-//   if (mediaStream) {
-//     const videoTrack = mediaStream.getVideoTracks()[0];
-//     isCameraOn = !isCameraOn;
-
-//     // Enable or disable the video track based on the camera state
-//     videoTrack.enabled = isCameraOn;
-
-//     // Update the UI based on the camera state
-//     toggleCameraButton.innerText = isCameraOn ? 'Turn Off Camera' : 'Turn On Camera';
-//   }
-// });
-
-
 let selectedAudioDeviceId;
 let selectedVideoDeviceId;
 

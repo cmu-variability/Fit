@@ -11,13 +11,13 @@ app.set('view engine', 'ejs');
 // Serve static files from the public directory
 app.use(express.static('public'));
 
-// Active rooms data structure (you can choose your preferred data structure)
-const activeRooms = {};
-
 // Define the main page route
 app.get('/', (req, res) => {
   res.render('index');
 });
+
+// Active rooms data structure (you can choose your preferred data structure)
+const activeRooms = {};
 
 // Define the route to create a new room with a UUID
 app.get('/create', (req, res) => {
@@ -28,28 +28,8 @@ app.get('/create', (req, res) => {
     // Add any additional room data as needed
     users: []
   };
-
   res.redirect(`/${roomId}`);
 });
-
-app.post('/join', (req, res) => {
-    const roomId = req.body.roomId; // Get the room ID input from the request body
-
-    res.redirect(`/room/${roomId}`);
-});
-
-app.get('/room/:roomId', (req, res) => {
-    const roomId = req.params.roomId; // Get the room ID from the URL
-
-    // Additional logic for validating the room ID or checking if it is active
-    // ...
-
-    const userId = 'exampleUserId'; // Replace 'exampleUserId' with your actual user ID
-
-    res.render('room', { roomId, userId }); // Pass roomId and userId to the room template
-});
-
-
 
 // Define the route to join an active room with a UUID
 app.get('/:roomId', (req, res) => {
