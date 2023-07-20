@@ -18,6 +18,11 @@ navigator.mediaDevices.getUserMedia({
   mediaStream=stream
   addVideoStream(myVideo, stream)
 
+  // if (isResearcher) {
+  //   stream.getVideoTracks().forEach(track => track.enabled = false);
+  //   stream.getAudioTracks().forEach(track => track.enabled = false);
+  // }
+
   myPeer.on('call', call => {
     call.answer(stream)
     const video = document.createElement('video')
@@ -29,11 +34,13 @@ navigator.mediaDevices.getUserMedia({
   socket.on('user-connected', userId => {
     connectToNewUser(userId, stream)
   })
+
+  socket.on('user-disconnected', userId => {
+    if (peers[userId]) peers[userId].close()
+  })
 })
 
-socket.on('user-disconnected', userId => {
-  if (peers[userId]) peers[userId].close()
-})
+
 
 myPeer.on('open', id => {
   socket.emit('join-room', ROOM_ID, id)
@@ -63,16 +70,16 @@ function addVideoStream(video, stream) {
 const copyButton = document.getElementById('copyButton');
 
 copyButton.addEventListener('click', () => {
-    const roomId="http://localhost:3000/"+ROOM_ID;
-    navigator.clipboard.writeText(roomId)
-    .then(() => {
-      console.log('Room UUID copied to clipboard');
-      // You can provide feedback to the user that the copying was successful
-    })
-    .catch((error) => {
-      console.error('Failed to copy room UUID:', error);
-      // You can handle any errors that occur during copying
-    });
+  const roomId="http://localhost:3000/"+ROOM_ID;
+  navigator.clipboard.writeText(roomId)
+  .then(() => {
+    console.log('Room UUID copied to clipboard');
+    // You can provide feedback to the user that the copying was successful
+  })
+  .catch((error) => {
+    console.error('Failed to copy room UUID:', error);
+    // You can handle any errors that occur during copying
+  });
 });
 
 const leaveCallButton = document.getElementById('leaveCallButton');

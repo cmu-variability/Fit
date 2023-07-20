@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script src="/socket.io/socket.io.js" defer></script>
+<style>
+    body {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        height: 100vh;
+        row-gap:10px;
+    }
+
+    h1{
+        text-align:center
+    }
+
+    button {
+      background-color: rgb(227, 142, 227);
+      color: white;
+      padding: 10px 20px;
+      margin-right: 50px;
+      font-size:medium;
+      border-radius: 10px;
+    }
+
+    h {
+        font-size:20px;
+    }
+    #link-input{
+      border-radius: 10px;
+      padding: 10px 20px;
+    }
+    table {
+      border-collapse: collapse;
+      width: 100%;
+    }
+
+    th, td {
+      border: 1px solid black;
+      padding: 8px;
+      text-align: center;
+    }
+
+    /* Optional: Add background color and center text in header cells */
+    th {
+      background-color: #f2f2f2;
+      text-align: center;
+    }
+</style>
+<meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Main Page</title>
+</head>
+<body>
+  <h>Hi! Researcher</h>
+  <h1>Welcome to FIT</h1>
+
+  <h>Join Meeting: <input type="text" id="link-input" placeholder="Paste meeting link here"></h>
+
+  <h>Active Meeting Rooms</h>
+  <table>
+    <tr>
+      <th>Room ID</th>
+      <th></th>
+    </tr>
+    <% Object.keys(activeRooms).forEach(roomId => { %>
+        <tr>
+          <td>
+            <%= roomId %>
+          </td>
+          <td>
+            <button onclick="joinRoom('<%= roomId %>')">Join</button>
+          </td>
+        </tr>
+    <% }); %>
+  </table>
+
+  <script>
+
+    function joinRoom(roomId) {
+    // Redirect the user to the room by changing the window location
+    window.location.href = `http://localhost:3000/${roomId}`;
+    }
+  </script>
+
+</body>
+</html>

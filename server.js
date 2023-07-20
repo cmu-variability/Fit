@@ -16,6 +16,11 @@ app.get('/', (req, res) => {
   res.render('index');
 });
 
+app.get('/r', (req, res) => {
+
+  res.render('researcher', { activeRooms });
+});
+
 // Active rooms data structure (you can choose your preferred data structure)
 const activeRooms = {};
 

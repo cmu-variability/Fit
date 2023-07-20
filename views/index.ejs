@@ -39,8 +39,7 @@
     h {
         font-size:20px;
     }
-    #link-input{
-      border-radius: 10px;
+    #room-link{
       padding: 10px 20px;
     }
 </style>
@@ -57,7 +56,9 @@
     <button type="submit">Create New Room</button>
   </form>
 
-  <h>Join Meeting: <input type="text" id="link-input" placeholder="Paste meeting link here"></h>
+  <div id="joining">
+  <h>Join Meeting Room:<input type="text" id="room-link" placeholder="Enter the room link"><button onclick="goToRoom()">Go to Room</button></h>
+  </div>
 
   <script>
     // Get the video grid element
@@ -84,27 +85,18 @@
     // Call the startVideo function to initiate camera access
     startVideo();
 
-    const linkInput = document.getElementById('link-input');
+  function goToRoom() {
+    const roomLinkInput = document.getElementById('room-link');
+    const roomLink = roomLinkInput.value.trim();
 
-    // Add an event listener for the paste event
-    linkInput.addEventListener('paste', handlePaste);
-
-    // Handle the paste event
-    function handlePaste(event) {
-        const clipboardData = event.clipboardData || window.clipboardData;
-        const pastedData = clipboardData.getData('text');
-
-        // Check if the pasted data is a valid URL
-        if (isUrlValid(pastedData)) {
-          const url= new URL(clipboardData);
-          if (activeRooms.hasOwnProperty(url.searchParams.roomId)){
-            // Redirect the user to the pasted URL
-            window.location.href = pastedData;
-          }
-          else {console.error('Error accessing camera:', error)}
-        }
+    // Check if the input is not empty
+    if (roomLink !== '') {
+      // Navigate to the room link
+      window.location.href = roomLink;
+    } else {
+      alert('Please enter a valid room link.');
     }
-
+  }
     // Helper function to check if a string is a valid URL
     function isUrlValid(url) {
     try {
@@ -115,6 +107,6 @@
     }
     }
   </script>
-  
+
 </body>
 </html>
