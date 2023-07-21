@@ -224,3 +224,26 @@ function hideButtons() {
   hiddenButtons.style.display = 'none';
 }
 
+// Function to send chat messages
+function sendMessage() {
+  const message = document.getElementById('message').value;
+  socket.emit('chat-message', message);
+  document.getElementById('message').value = '';
+}
+
+// Function to append chat messages to the chat box
+function appendMessage(user, message) {
+  const chatBox = document.getElementById('chat-box');
+  const messageElement = document.createElement('div');
+  messageElement.innerText = `${user}: ${message}`;
+  chatBox.appendChild(messageElement);
+}
+
+// Listen for chat messages from the server
+socket.on('chat-message', data => {
+  const { userId, message } = data;
+  appendMessage(userId, message);
+});
+
+// Event listener for the send button
+document.getElementById('send-button').addEventListener('click', sendMessage);

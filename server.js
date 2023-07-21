@@ -57,6 +57,12 @@ io.on('connection', socket => {
         socket.on('disconnect', () => {
           socket.to(roomId).emit('user-disconnected', userId);
         });
+
+            // Listen for chat messages
+        socket.on('chat-message', message => {
+          io.to(roomId).emit('chat-message', { userId, message });
+        });
+
       } catch (error) {
         console.error('Error in join-room event:', error);
       }
