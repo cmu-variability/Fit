@@ -212,4 +212,15 @@ navigator.mediaDevices.enumerateDevices()
   })
   .catch(error => {
     console.error('Error enumerating devices:', error);
-  });
+});
+
+function showButtons() {
+  const hiddenButtons = document.querySelector('.hidden-buttons');
+  hiddenButtons.style.display = 'block';
+}
+
+function hideButtons() {
+  const hiddenButtons = document.querySelector('.hidden-buttons');
+  hiddenButtons.style.display = 'none';
+}
+
