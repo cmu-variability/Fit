@@ -5,10 +5,9 @@ const app = express();
 const server = require('http').createServer(app);
 const io = require('socket.io')(server);
 
-// Set the view engine to EJS
+
 app.set('view engine', 'ejs');
 
-// Serve static files from the public directory
 app.use(express.static('public'));
 
 // Define the main page route
@@ -26,11 +25,11 @@ const activeRooms = {};
 
 // Define the route to create a new room with a UUID
 app.get('/create', (req, res) => {
-  const roomId = uuidv4(); // Generate a new UUID for the room
+  // Generate a new UUID for the room
+  const roomId = uuidv4();
 
   // Create a new room in the activeRooms data structure
   activeRooms[roomId] = {
-    // Add any additional room data as needed
     users: []
   };
   res.redirect(`/${roomId}`);
@@ -58,7 +57,6 @@ io.on('connection', socket => {
           socket.to(roomId).emit('user-disconnected', userId);
         });
 
-            // Listen for chat messages
         socket.on('chat-message', message => {
           io.to(roomId).emit('chat-message', { userId, message });
         });

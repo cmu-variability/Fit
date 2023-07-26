@@ -18,11 +18,6 @@ navigator.mediaDevices.getUserMedia({
   mediaStream=stream
   addVideoStream(myVideo, stream)
 
-  // if (isResearcher) {
-  //   stream.getVideoTracks().forEach(track => track.enabled = false);
-  //   stream.getAudioTracks().forEach(track => track.enabled = false);
-  // }
-
   myPeer.on('call', call => {
     call.answer(stream)
     const video = document.createElement('video')
@@ -74,11 +69,9 @@ copyButton.addEventListener('click', () => {
   navigator.clipboard.writeText(roomId)
   .then(() => {
     console.log('Room UUID copied to clipboard');
-    // You can provide feedback to the user that the copying was successful
   })
   .catch((error) => {
     console.error('Failed to copy room UUID:', error);
-    // You can handle any errors that occur during copying
   });
 });
 
@@ -129,7 +122,6 @@ const videoDeviceDropdown = document.getElementById('video-device-dropdown');
 
 // Function to populate the dropdown options
 function populateDeviceOptions(deviceList, dropdown) {
-  // Clear existing options
   dropdown.innerHTML = '';
 
   // Create a default option
@@ -151,8 +143,6 @@ function populateDeviceOptions(deviceList, dropdown) {
 
 // Function to handle the updated media stream
 function handleUpdatedMediaStream(stream) {
-  // Update the media stream in your WebRTC connection or media elements
-  // For example, if you have a video element with id 'localVideo':
   const videoElement = document.getElementById('localVideo');
   if (videoElement) {
     // Stop the existing media stream if it is currently playing
@@ -172,7 +162,7 @@ function updateMediaStream() {
     video: selectedVideoDeviceId ? { deviceId: selectedVideoDeviceId } : isCameraOn
   };
 
-  navigator.mediaDevices.getUserMedia(constraints)
+navigator.mediaDevices.getUserMedia(constraints)
     .then(stream => {
       // Store the new media stream for later use
       mediaStream = stream;
