@@ -158,8 +158,8 @@ function handleUpdatedMediaStream(stream) {
 // Function to update the media stream with the selected devices
 function updateMediaStream() {
   const constraints = {
-    audio: selectedAudioDeviceId ? { deviceId: selectedAudioDeviceId } : isMicOn,
-    video: selectedVideoDeviceId ? { deviceId: selectedVideoDeviceId } : isCameraOn
+    audio: selectedAudioDeviceId ,
+    video: selectedVideoDeviceId
   };
 
 navigator.mediaDevices.getUserMedia(constraints)
