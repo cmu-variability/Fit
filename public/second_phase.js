@@ -6,11 +6,6 @@ const myPeer = new Peer(undefined, {
   port: '3001'
 })
 
-const urlParams = new URLSearchParams(window.location.search);
-const userName = urlParams.get('userName');
-const userRole = urlParams.get('userRole');
-
-
 const myVideo = document.createElement('video')
 myVideo.muted = true
 const peers = {}
@@ -42,12 +37,9 @@ navigator.mediaDevices.getUserMedia({
 
 
 
-
 myPeer.on('open', id => {
-  socket.emit('join-room', ROOM_ID, id, userName, userRole)
+  socket.emit('join-second-room', ROOM_ID, id)
 })
-
-
 
 function connectToNewUser(userId, stream) {
   const call = myPeer.call(userId, stream)
@@ -70,27 +62,10 @@ function addVideoStream(video, stream) {
   videoGrid.append(video)
 }
 
-const copyButton = document.getElementById('copyButton');
-
-copyButton.addEventListener('click', () => {
-  const roomId="http://localhost:3000/"+ROOM_ID;
-  navigator.clipboard.writeText(roomId)
-  .then(() => {
-    console.log('Room UUID copied to clipboard');
-  })
-  .catch((error) => {
-    console.error('Failed to copy room UUID:', error);
-  });
-});
-
 const leaveCallButton = document.getElementById('leaveCallButton');
 
 leaveCallButton.addEventListener('click', () => {
-    if(userRole==null){
-    window.location.href = '/s';}
-    else{
-      window.location.href='/w'
-    }
+    window.location.href = '/';
 });
 
 const toggleMic = document.getElementById('toggle-mic');
@@ -215,40 +190,3 @@ navigator.mediaDevices.enumerateDevices()
   .catch(error => {
     console.error('Error enumerating devices:', error);
 });
-
-function showButtons() {
-  const hiddenButtons = document.querySelector('.hidden-buttons');
-  hiddenButtons.style.display = 'block';
-}
-
-function hideButtons() {
-  const hiddenButtons = document.querySelector('.hidden-buttons');
-  hiddenButtons.style.display = 'none';
-}
-
-// Function to send chat messages
-function sendMessage() {
-  const message = document.getElementById('message').value;
-  socket.emit('chat-message', message);
-  document.getElementById('message').value = '';
-}
-
-// Function to append chat messages to the chat box
-function appendMessage(user, message) {
-  const chatBox = document.getElementById('chat-box');
-  const messageElement = document.createElement('div');
-  messageElement.innerText = `${user}: ${message}`;
-  chatBox.appendChild(messageElement);
-}
-
-// Listen for chat messages from the server
-socket.on('chat-message', data => {
-  const { userId, message } = data;
-  appendMessage(userId, message);
-});
-
-// Event listener for the send button
-document.getElementById('send-button').addEventListener('click', sendMessage);
-
-
-

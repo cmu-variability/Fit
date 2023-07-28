@@ -17,7 +17,22 @@ app.get('/', (req, res) => {
 
 app.get('/r', (req, res) => {
 
-  res.render('researcher', { activeRooms });
+  res.render('researcher', { activeRooms, secondActiveRooms });
+});
+
+const secondActiveRooms = {};
+
+app.get('/s', (req, res) => {
+  const roomId = uuidv4();
+  secondActiveRooms[roomId] = {
+    users: []
+  };
+
+  res.render('second_phase',{roomId});
+});
+
+app.get('/w',(req,res)=>{
+  res.render('waiting',{secondActiveRooms})
 });
 
 // Active rooms data structure (you can choose your preferred data structure)
@@ -38,20 +53,22 @@ app.get('/create', (req, res) => {
 // Define the route to join an active room with a UUID
 app.get('/:roomId', (req, res) => {
   const roomId = req.params.roomId;
-
-  // Check if the room exists and is active
-  if (activeRooms.hasOwnProperty(roomId)) {
-    res.render('room', { roomId });
+  const userRole=req.query.userRole;
+  const userName=req.query.userName;
+  if(secondActiveRooms.hasOwnProperty(roomId)){
+    res.render('second_phase',{roomId});
+  }else if (activeRooms.hasOwnProperty(roomId)) {
+    res.render('room', { roomId, userRole, userName });
   } else {
     res.redirect('/');
   }
 });
 
 io.on('connection', socket => {
-    socket.on('join-room', (roomId, userId) => {
+    socket.on('join-room', (roomId, userId,userName, userRole) => {
       try {
         socket.join(roomId);
-        socket.to(roomId).emit('user-connected', userId);
+        socket.to(roomId).emit('user-connected', userId,userName, userRole);
 
         socket.on('disconnect', () => {
           socket.to(roomId).emit('user-disconnected', userId);
@@ -59,6 +76,19 @@ io.on('connection', socket => {
 
         socket.on('chat-message', message => {
           io.to(roomId).emit('chat-message', { userId, message });
+        });
+
+      } catch (error) {
+        console.error('Error in join-room event:', error);
+      }
+    });
+    socket.on('join-second-room', (roomId, userId) => {
+      try {
+        socket.join(roomId);
+        socket.to(roomId).emit('user-connected', userId);
+
+        socket.on('disconnect', () => {
+          socket.to(roomId).emit('user-disconnected', userId);
         });
 
       } catch (error) {

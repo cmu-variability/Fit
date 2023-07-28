@@ -64,7 +64,7 @@
   <script>
     // Get the video grid element
     const videoGrid = document.getElementById('video-grid');
-    
+
     // Function to start accessing the camera and display video
     async function startVideo() {
       try {
@@ -92,9 +92,8 @@
 
       // Check if the input is not empty
       if (roomLink !== '') {
-        // Navigate to the room link
-        window.location.href = roomLink;
-      } else {
+        window.location.href=roomLink
+        } else {
         alert('Please enter a valid room link.');
       }
     }

@@ -53,29 +53,7 @@
   <title>Main Page</title>
 </head>
 <body>
-  <h>Hi! Researcher</h>
-  <h1>Welcome to FIT</h1>
 
-  <h>Join Meeting: <input type="text" id="link-input" placeholder="Paste meeting link here"></h>
-
-  <h>Active Meeting Rooms</h>
-  <table>
-    <tr>
-      <th>Room ID</th>
-      <th></th>
-    </tr>
-    <% Object.keys(activeRooms).forEach(roomId => { %>
-        <tr>
-          <td>
-            <%= roomId %>
-          </td>
-          <td>
-            <button onclick="joinRoom('<%= roomId %>')">Join</button>
-          </td>
-        </tr>
-    <% }); %>
-  </table>
-  <br>
   <h>Active Waiting Rooms</h>
   <table>
     <tr>
@@ -97,18 +75,8 @@
   <script>
 
     function joinRoom(roomId) {
-      const userName = prompt('Please enter your name:');
-        if (!userName || userName.trim() === '') {
-          alert('You must enter a valid name.');
-          return;
-        }
-        const userRole = prompt('Please select your role (Researcher or Participant):');
-          if (!userRole || (userRole.trim().toLowerCase() !== 'researcher' && userRole.trim().toLowerCase() !== 'participant')) {
-            alert('You must enter a valid role (Researcher or Participant).');
-            return;
-          }
-        // Navigate to the room link
-        window.location.href = `http://localhost:3000/${roomId}?userName=${encodeURIComponent(userName)}&userRole=${encodeURIComponent(userRole)}`;;
+
+        window.location.href = `http://localhost:3000/${roomId}`;;
     }
 
   </script>

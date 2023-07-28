@@ -79,6 +79,23 @@
       cursor: pointer;
     }
 
+    table {
+      border-collapse: collapse;
+      width: 100%;
+    }
+
+    th, td {
+      border: 1px solid black;
+      padding: 8px;
+      text-align: center;
+    }
+
+    /* Optional: Add background color and center text in header cells */
+    th {
+      background-color: #f2f2f2;
+      text-align: center;
+    }
+
   </style>
 </head>
 <body>
@@ -119,13 +136,32 @@
     <button id="copyButton">Copy Invite Link</button>
     <button id="leaveCallButton">Leave Call</button>
   </div>
-
+  <% if (userRole==null) { %>
   <div id="chat-box"></div>
 
   <div id="chat-input">
     <input type="text" id="message" placeholder="Type your message...">
     <button id="send-button">Send</button>
   </div>
+  <% } %>
+
+  <% if (userRole!=null&&userRole.toLowerCase() === 'researcher') { %>
+    <div class="researcher-table">
+      <h2>Marking Table</h2>
+      <table>
+        <tr>
+          <th>Time</th>
+          <th>Researcher</th>
+          <th>Comment</th>
+        </tr>
+          <tr>
+            <td>2</td>
+            <td><%= userName %></td>
+            <td>2</td>
+          </tr>
+      </table>
+    </div>
+  <% } %>
 
 </body>
 </html>
