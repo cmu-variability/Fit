@@ -8,38 +8,45 @@ This repository contains a prototype application built with Express, Socket.IO, 
 Before running the prototype, ensure you have the following installed:
 - Node.js: https://nodejs.org (version 12 or later)
 - npm (Node Package Manager): Included with Node.js installation
-- PeerJS: Install globally using npm
 
 ## Dependencies
 - Express: Fast, unopinionated, minimalist web framework for Node.js
-- Socket.IO: Real-time bidirectional event-based communication library
-- http: Node.js built-in HTTP module
-- ejs: Embedded JavaScript templates
-- uuid: Generate RFC-compliant UUIDs
-
-## Dev Dependencies
-- nodemon: Utility that automatically restarts the server on file changes during development
-
-To install the required dependencies for the prototype, run the following command:
 ```command
-npm i express socket.io http ejs uuid
-npm i --save-dev nodemon
+npm i express
+```
+- Socket.IO: Real-time bidirectional event-based communication library
+```command
+npm i socket.io
+```
+- http: Node.js built-in HTTP module
+```command
+npm i http
+```
+- ejs: Embedded JavaScript templates
+```command
+npm i ejs
+```
+- uuid: Generate RFC-compliant UUIDs
+```command
+npm i uuid
+```
+- PeerJS: Install globally using npm
+```command
 npm i -g peer
 peerjs --port 3001
+```
+- start the nodemon
+```command
+npx nodemon
 ```
 
 ## Running the Prototype
 To run the prototype, follow these steps:
 
-1. Start the PeerJS server:
-   
-2. Open a new terminal or command prompt window and navigate to the project directory.
+1. Open your web browser and access the user main page at `http://localhost:3000`.
 
-3. Start the application server by running the following command:
-
-4. Open your web browser and access the application at `http://localhost:3000`.
-
-5. Follow the instructions on the web page to create or join a video call room.
+2. Follow the instructions on the web page to create or join a video call room.
+3. Open your web browser and access the researcher main page at `http://localhost:3000/r`.
 
 ## Development
 If you want to make changes to the prototype, you can use nodemon to automatically restart the server whenever changes are made. Run the following command to start the development server:
