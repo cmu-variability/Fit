@@ -15,13 +15,19 @@ const myVideo = document.createElement('video')
 myVideo.muted = true
 const peers = {}
 let mediaStream;
+let recordRTC;
 
+if(userRole==null){
 navigator.mediaDevices.getUserMedia({
   video: true,
   audio: true
 }).then(stream => {
   mediaStream=stream
   addVideoStream(myVideo, stream)
+  recordRTC = RecordRTC(stream,{
+    type: 'video'
+  });
+  recordRTC.startRecording();
 
   myPeer.on('call', call => {
     call.answer(stream)
@@ -39,6 +45,30 @@ navigator.mediaDevices.getUserMedia({
     if (peers[userId]) peers[userId].close()
   })
 })
+}else{
+  navigator.mediaDevices.getUserMedia({
+    video: false,
+    audio: true
+  }).then(stream => {
+    mediaStream=stream
+    myPeer.on('call', call => {
+      call.answer(null)
+      const video = document.createElement('video')
+      call.on('stream', userVideoStream => {
+        addVideoStream(video, userVideoStream)
+      })
+    })
+
+    socket.on('user-connected', userId => {
+      connectToNewUser(userId, stream)
+    })
+
+    socket.on('user-disconnected', userId => {
+      if (peers[userId]) peers[userId].close()
+    })
+  })
+}
+
 
 
 
@@ -87,11 +117,26 @@ const leaveCallButton = document.getElementById('leaveCallButton');
 
 leaveCallButton.addEventListener('click', () => {
     if(userRole==null){
+    recordRTC.stopRecording(function() {
+        let blob = recordRTC.getBlob();
+        invokeSaveAsDialog(blob);
+    });
     window.location.href = '/s';}
     else{
       window.location.href='/w'
     }
 });
+
+function invokeSaveAsDialog(file) {
+  var fileUrl = URL.createObjectURL(file);
+  var a = document.createElement('a');
+  a.href = fileUrl;
+  a.download = 'meeting_record.webm';
+  a.click();
+
+  // Release the object URL to free up resources
+  URL.revokeObjectURL(fileUrl);
+}
 
 const toggleMic = document.getElementById('toggle-mic');
 const toggleCamera = document.getElementById('toggle-camera');
@@ -248,7 +293,8 @@ socket.on('chat-message', data => {
 });
 
 // Event listener for the send button
-document.getElementById('send-button').addEventListener('click', sendMessage);
+if(userRole==null){
+document.getElementById('send-button').addEventListener('click', sendMessage);}
 
 
 
