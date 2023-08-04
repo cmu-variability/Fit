@@ -44,12 +44,11 @@ npx nodemon
 To run the prototype, follow these steps:
 
 1. Open your web browser and access the user main page at `http://localhost:3000`.
-
 2. Follow the instructions on the web page to create or join a video call room.
 3. Open your web browser and access the researcher main page at `http://localhost:3000/r`.
 
 ## Development
-If you want to make changes to the prototype, you can use nodemon to automatically restart the server whenever changes are made. Run the following command to start the development server:
+If you want to make changes to the prototype, you can use nodemon to automatically restart the server whenever changes are made. 
 
 
 
