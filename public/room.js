@@ -6,17 +6,21 @@ const myPeer = new Peer(undefined, {
   port: '3001'
 })
 
+//for researcher they have a userName and userRole as researcher
+//for normal participants, their userName and userRole are null
 const urlParams = new URLSearchParams(window.location.search);
 const userName = urlParams.get('userName');
 const userRole = urlParams.get('userRole');
 
-
+//get self video and mute it
 const myVideo = document.createElement('video')
 myVideo.muted = true
 const peers = {}
 let mediaStream;
+//this is for recording
 let recordRTC;
 
+//if a researcher joins, their video is not added to the stream, so they answer null
 if(userRole==null){
 navigator.mediaDevices.getUserMedia({
   video: true,
@@ -70,9 +74,6 @@ navigator.mediaDevices.getUserMedia({
 }
 
 
-
-
-
 myPeer.on('open', id => {
   socket.emit('join-room', ROOM_ID, id, userName, userRole)
 })
@@ -100,6 +101,8 @@ function addVideoStream(video, stream) {
   videoGrid.append(video)
 }
 
+
+//enable user to copy the meeting link to their clipboard
 const copyButton = document.getElementById('copyButton');
 
 copyButton.addEventListener('click', () => {
@@ -113,6 +116,9 @@ copyButton.addEventListener('click', () => {
   });
 });
 
+//when first half of the meeting end:
+//participant click leave call button to go to the second phase
+//researcher click leave call button to see a list of participant that are in the second phase
 const leaveCallButton = document.getElementById('leaveCallButton');
 
 leaveCallButton.addEventListener('click', () => {
@@ -127,6 +133,8 @@ leaveCallButton.addEventListener('click', () => {
     }
 });
 
+
+//for recording
 function invokeSaveAsDialog(file) {
   var fileUrl = URL.createObjectURL(file);
   var a = document.createElement('a');
@@ -138,6 +146,7 @@ function invokeSaveAsDialog(file) {
   URL.revokeObjectURL(fileUrl);
 }
 
+//mute mic and camera
 const toggleMic = document.getElementById('toggle-mic');
 const toggleCamera = document.getElementById('toggle-camera');
 
@@ -170,6 +179,8 @@ toggleCamera.addEventListener('click', () => {
   toggleCameraStream();
 });
 
+
+//for adjusting media devices
 let selectedAudioDeviceId;
 let selectedVideoDeviceId;
 
