@@ -10,6 +10,8 @@
   <script defer src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
   <script src="/socket.io/socket.io.js" defer></script>
   <script src="room.js" defer></script>
+  <script src="https://www.gstatic.com/firebasejs/8.7.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.7.0/firebase-database.js"></script>
   <title>Document</title>
   <style>
     #video-grid {
@@ -90,6 +92,19 @@
       text-align: center;
     }
 
+    .popup {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: white;
+      padding: 20px;
+      border: 1px solid #ccc;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      z-index: 1000;
+    }
+
     /* Optional: Add background color and center text in header cells */
     th {
       background-color: #f2f2f2;
@@ -125,6 +140,7 @@
   </div>
 
   <div class="container">
+    <!-- Critical Moment Button -->
     <div class="main-button" onmouseover="showButtons()" onmouseout="hideButtons()">
       Mark Critical Moment
       <div class="hidden-buttons">
@@ -135,6 +151,11 @@
     </div>
     <button id="copyButton">Copy Invite Link</button>
     <button id="leaveCallButton">Leave Call</button>
+    <!-- Notes option will reveal for researchers -->
+    <div class="popup" id="notesPopup">
+      <textarea id="notesInput" placeholder="Enter notes"></textarea>
+      <button id="continueButton">Continue</button>
+    </div>
   </div>
   <% if (userRole==null) { %>
   <div id="chat-box"></div>

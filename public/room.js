@@ -248,7 +248,97 @@ socket.on('chat-message', data => {
 });
 
 // Event listener for the send button
-document.getElementById('send-button').addEventListener('click', sendMessage);
+if (userRole == null) {
+  document.getElementById('send-button').addEventListener('click', sendMessage);
+}
+
+/* Firebase code begins here; all previous code is untouched */ 
+
+// Firebase setup
+const firebaseConfig = {
+  apiKey: "AIzaSyD9blp9GQZ50XqLM8VCnH7pjxt68JT7FBQ",
+  authDomain: "fit-project-88b55.firebaseapp.com",
+  databaseURL: "https://fit-project-88b55-default-rtdb.firebaseio.com",
+  projectId: "fit-project-88b55",
+  storageBucket: "fit-project-88b55.appspot.com",
+  messagingSenderId: "569706388901",
+  appId: "1:569706388901:web:1e47d6bdd5c395c5bd9c4c"
+};
+
+firebase.initializeApp(firebaseConfig);
+const database = firebase.database();
+
+// Find the "Mark Critical Moment" button element and Notes buttons
+const markCriticalButton = document.querySelector('.main-button');
+const notesPopup = document.getElementById('notesPopup');
+const notesInput = document.getElementById('notesInput');
+const continueButton = document.getElementById('continueButton');
+
+// Initialize the data object
+let dataToStore;
+
+// Add click event listener to the button
+markCriticalButton.addEventListener('click', () => {
+  // Extract shared data
+  const sessionID = ROOM_ID;
+  const timestamp = new Date().getTime();
+  const formattedTimestamp = new Date(timestamp).toLocaleString();
+
+  if (userRole === "Researcher") {
+    // Show the notes popup
+    notesPopup.style.display = 'block';
+
+    // Add event listener for the Continue button when notes are submitted
+    continueButton.addEventListener('click', () => {
+      const notes = notesInput.value;
+
+      // Create an object with the data to be stored (with notes)
+      dataToStore = {
+        username: userName,
+        role: userRole,
+        sessionid: sessionID,
+        timestamp: formattedTimestamp,
+        notes: notes
+      };
+
+      // Hide the popup after storing the data
+      notesPopup.style.display = 'none';
+        
+      // Reference to the location where data is stored (can change this if data should be separated)
+      const criticalMomentsRef = database.ref('criticalMoments');
+
+      // Push the data to the Firebase database 
+      // Needs to occur separately from else statement due to asynchronous execution
+      criticalMomentsRef.push(dataToStore)
+        .then(() => {
+          console.log('Data stored in Firebase!');
+        })
+        .catch(error => {
+          console.error('Error storing data:', error);
+        });
+    });
+  } 
+  else {
+    // Create an object with the data to be stored (without notes)
+    dataToStore = {
+      username: userName,
+      role: userRole,
+      sessionid: sessionID,
+      timestamp: formattedTimestamp
+    };
+
+    const criticalMomentsRef = database.ref('criticalMoments');
+
+    criticalMomentsRef.push(dataToStore)
+      .then(() => {
+        console.log('Data stored in Firebase!');
+      })
+      .catch(error => {
+        console.error('Error storing data:', error);
+      });
+  }
+
+});
 
 
 
