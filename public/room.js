@@ -6,22 +6,32 @@ const myPeer = new Peer(undefined, {
   port: '3001'
 })
 
+//for researcher they have a userName and userRole as researcher
+//for normal participants, their userName and userRole are null
 const urlParams = new URLSearchParams(window.location.search);
 const userName = urlParams.get('userName');
 const userRole = urlParams.get('userRole');
 
-
+//get self video and mute it
 const myVideo = document.createElement('video')
 myVideo.muted = true
 const peers = {}
 let mediaStream;
+//this is for recording
+let recordRTC;
 
+//if a researcher joins, their video is not added to the stream, so they answer null
+if(userRole==null){
 navigator.mediaDevices.getUserMedia({
   video: true,
   audio: true
 }).then(stream => {
   mediaStream=stream
   addVideoStream(myVideo, stream)
+  recordRTC = RecordRTC(stream,{
+    type: 'video'
+  });
+  recordRTC.startRecording();
 
   myPeer.on('call', call => {
     call.answer(stream)
@@ -39,8 +49,29 @@ navigator.mediaDevices.getUserMedia({
     if (peers[userId]) peers[userId].close()
   })
 })
+}else{
+  navigator.mediaDevices.getUserMedia({
+    video: false,
+    audio: true
+  }).then(stream => {
+    mediaStream=stream
+    myPeer.on('call', call => {
+      call.answer(null)
+      const video = document.createElement('video')
+      call.on('stream', userVideoStream => {
+        addVideoStream(video, userVideoStream)
+      })
+    })
 
+    socket.on('user-connected', userId => {
+      connectToNewUser(userId, stream)
+    })
 
+    socket.on('user-disconnected', userId => {
+      if (peers[userId]) peers[userId].close()
+    })
+  })
+}
 
 
 myPeer.on('open', id => {
@@ -70,6 +101,8 @@ function addVideoStream(video, stream) {
   videoGrid.append(video)
 }
 
+
+//enable user to copy the meeting link to their clipboard
 const copyButton = document.getElementById('copyButton');
 
 copyButton.addEventListener('click', () => {
@@ -83,16 +116,37 @@ copyButton.addEventListener('click', () => {
   });
 });
 
+//when first half of the meeting end:
+//participant click leave call button to go to the second phase
+//researcher click leave call button to see a list of participant that are in the second phase
 const leaveCallButton = document.getElementById('leaveCallButton');
 
 leaveCallButton.addEventListener('click', () => {
     if(userRole==null){
+    recordRTC.stopRecording(function() {
+        let blob = recordRTC.getBlob();
+        invokeSaveAsDialog(blob);
+    });
     window.location.href = '/s';}
     else{
       window.location.href='/w'
     }
 });
 
+
+//for recording
+function invokeSaveAsDialog(file) {
+  var fileUrl = URL.createObjectURL(file);
+  var a = document.createElement('a');
+  a.href = fileUrl;
+  a.download = 'meeting_record.webm';
+  a.click();
+
+  // Release the object URL to free up resources
+  URL.revokeObjectURL(fileUrl);
+}
+
+//mute mic and camera
 const toggleMic = document.getElementById('toggle-mic');
 const toggleCamera = document.getElementById('toggle-camera');
 
@@ -125,6 +179,8 @@ toggleCamera.addEventListener('click', () => {
   toggleCameraStream();
 });
 
+
+//for adjusting media devices
 let selectedAudioDeviceId;
 let selectedVideoDeviceId;
 
@@ -339,6 +395,7 @@ markCriticalButton.addEventListener('click', () => {
   }
 
 });
+
 
 
 

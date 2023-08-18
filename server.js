@@ -9,7 +9,7 @@ app.set('view engine', 'ejs');
 
 app.use(express.static('public'));
 
-// Define the main page route
+// Define the index page route
 app.get('/', (req, res) => {
   res.render('index');
 });
@@ -21,6 +21,7 @@ app.get('/r', (req, res) => {
 
 const secondActiveRooms = {};
 
+//Define the second-phase meeting room route
 app.get('/s', (req, res) => {
   const roomId = uuidv4();
   secondActiveRooms[roomId] = {
@@ -30,6 +31,7 @@ app.get('/s', (req, res) => {
   res.render('second_phase',{roomId});
 });
 
+//Define the route that show a list of participants waiting in the second phase meeting room
 app.get('/w',(req,res)=>{
   res.render('waiting',{secondActiveRooms})
 });
