@@ -113,6 +113,7 @@
     }
 
   </style>
+  
 </head>
 <body>
   <div id="video-grid"></div>
@@ -159,15 +160,6 @@
     </div>
   </div>
 
-  <div id="chat-box"></div>
-
-  <% if (userRole==null) { %>
-  <div id="chat-input">
-    <input type="text" id="message" placeholder="Type your message...">
-    <button id="send-button">Send</button>
-  </div>
-  <% } %>
-
   <% if (userRole!=null&&userRole.toLowerCase() === 'researcher') { %>
     <div class="researcher-table">
       <h2>Marking Table</h2>
@@ -185,6 +177,24 @@
       </table>
     </div>
   <% } %>
+
+ 
+  <% if (userRole == null) { %>
+    <!-- chat box -->
+    <div id="chat-box"></div>
+    <div id="chat-input">
+      <input type="text" id="message" placeholder="Type your message...">
+      <button id="send-button">Send</button>
+    </div>
+
+    <!-- researcher watching alert -->
+    <% if (roomUsers.some(user => user.userRole === 'Researcher')) { %>
+      <div id="researcherNotice">
+        A researcher is present in this room.
+      </div>
+    <% } %>
+  <% } %>
+
 
 </body>
 </html>

@@ -55,16 +55,19 @@ app.get('/create', (req, res) => {
 // Define the route to join an active room with a UUID
 app.get('/:roomId', (req, res) => {
   const roomId = req.params.roomId;
-  const userRole=req.query.userRole;
-  const userName=req.query.userName;
+  const userRole = req.query.userRole;
+  const userName = req.query.userName;
+
   if(secondActiveRooms.hasOwnProperty(roomId)){
-    res.render('second_phase',{roomId});
-  }else if (activeRooms.hasOwnProperty(roomId)) {
-    res.render('room', { roomId, userRole, userName });
+    res.render('second_phase', { roomId });
+  } else if (activeRooms.hasOwnProperty(roomId)) {
+    const roomUsers = activeRooms[roomId].users; // Fetch roomUsers from activeRooms
+    res.render('room', { roomId, userRole, userName, roomUsers }); // Include roomUsers
   } else {
     res.redirect('/');
   }
 });
+
 
 // Retrieve all the users in a room 
 app.get('/room/:roomId/users', (req, res) => {

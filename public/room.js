@@ -290,6 +290,11 @@ function hideButtons() {
 async function sendMessage() {
   const message = document.getElementById('message').value;
 
+  //does nothing if message is empty
+  if (message === "") {
+    return;
+  }
+
   const response = await fetch(`/room/${ROOM_ID}/users`);
   
   if (response.ok) {
