@@ -4,7 +4,12 @@ const { v4: uuidv4 } = require('uuid');
 const app = express();
 const server = require('http').createServer(app);
 const io = require('socket.io')(server);
-const possibleUserNames = ["lazy lion", "gritty goon", "pretty penguin"];
+const possibleUserNames = [
+  "Lazy Lion", "Gritty Goon", "Pretty Penguin", "Jolly Jaguar", "Brave Bear", "Witty Walrus", 
+  "Daring Deer", "Eager Elephant", "Zealous Zebra", "Calm Camel", "Silly Squirrel", "Curious Cat",
+  "Merry Monkey", "Rugged Rhino", "Quick Quokka", "Fancy Fox", "Happy Hippo", "Tiny Tiger", "Giddy Gorilla",
+  "Bouncy Bunny", "Adventurous Ant", "Playful Panda", "Keen Kangaroo", "Vibrant Vulture", "Noble Nightingale"
+];
 
 app.set('view engine', 'ejs');
 
@@ -58,15 +63,22 @@ app.get('/:roomId', (req, res) => {
   const userRole = req.query.userRole;
   const userName = req.query.userName;
 
-  if(secondActiveRooms.hasOwnProperty(roomId)){
+  if (secondActiveRooms.hasOwnProperty(roomId)) {
     res.render('second_phase', { roomId });
   } else if (activeRooms.hasOwnProperty(roomId)) {
-    const roomUsers = activeRooms[roomId].users; // Fetch roomUsers from activeRooms
-    res.render('room', { roomId, userRole, userName, roomUsers }); // Include roomUsers
+    // Ensure the 'users' field exists before trying to access it.
+    if (activeRooms[roomId].hasOwnProperty('users')) {
+      const roomUsers = activeRooms[roomId].users; // Fetch roomUsers from activeRooms
+      res.render('room', { roomId, userRole, userName, roomUsers }); // Include roomUsers
+    } else {
+      // Handle this case appropriately; maybe render the room without users, or redirect.
+      res.render('room', { roomId, userRole, userName }); 
+    }
   } else {
     res.redirect('/');
   }
 });
+
 
 
 // Retrieve all the users in a room 
@@ -88,30 +100,34 @@ io.on('connection', socket => {
 
         // Get the names of the users in the room
         const userNamesInRoom = activeRooms[roomId].users.map(user => user.userName);
+        let availableUserNames = possibleUserNames.filter(name => !userNamesInRoom.includes(name));
         
         // Find an available name from possibleUserNames
-        let availableName = null;
-        for (let name of possibleUserNames) {
-          if (!userNamesInRoom.includes(name)) {
-            availableName = name;
-            break;
-          }
-        }
+        let randomIndex = Math.floor(Math.random() * availableUserNames.length);
+        let randomName = availableUserNames[randomIndex];
 
         // this does not account for all names being taken
         if (activeRooms[roomId]) {
-          activeRooms[roomId].users.push({ userId, userName: availableName, userRole });
-        }    
+          activeRooms[roomId].users.push({ userId, userName: randomName, userRole });
+          
+          // Check for researcher and emit status
+          const hasResearcher = activeRooms[roomId].users.some(user => user.userRole === 'Researcher');
+          io.to(roomId).emit('researcher_status', hasResearcher);
+        }     
 
         socket.on('disconnect', () => {
           socket.to(roomId).emit('user-disconnected', userId);
-
-          // removes user from the list of users in the room
+  
+          // Remove user from the list of users in the room
           if (activeRooms[roomId]) {
             const index = activeRooms[roomId].users.findIndex(u => u.userId === userId);
             if (index !== -1) {
               activeRooms[roomId].users.splice(index, 1);
             }
+  
+            // Re-check for researcher and emit status
+            const hasResearcher = activeRooms[roomId].users.some(user => user.userRole === 'Researcher');
+            io.to(roomId).emit('researcher_status', hasResearcher);
           }
         });
 

@@ -332,6 +332,20 @@ if (userRole == null) {
   document.getElementById('send-button').addEventListener('click', sendMessage);
 }
 
+
+// Listen to the 'researcher_status' event
+socket.on('researcher_status', (hasResearcher) => {
+  // Get the div where the researcher notice should appear
+  const researcherNotice = document.getElementById("researcherNotice");
+
+  if (hasResearcher) {
+    researcherNotice.style.display = 'block';
+    researcherNotice.innerHTML = "A researcher is present in this room.";
+  } else {
+    researcherNotice.style.display = 'none';
+  }
+});
+
 /* Firebase code begins here; all previous code is untouched */ 
 
 // Firebase setup

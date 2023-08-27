@@ -31,6 +31,7 @@
       background-color:black;
       grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
       gap: 10px;
+      flex: 1;
     }
 
     video {
@@ -46,12 +47,33 @@
       padding: 10px 20px;
       margin-right: 10px;
     }
+
+    .video-and-instructions {
+      display: flex;
+      flex-direction: row;
+    }
+
+    .instructions-section {
+      padding-left: 20px;
+      align-self: center;
+      /* Add any other styles you need for the instructions */
+    }
+
 </style>
 </head>
 <body>
   <h1>Welcome to FIT</h1>
 
-  <div id="video-grid"></div>
+  <div class="video-and-instructions">
+    <div id="video-grid"></div>
+    <div class="instructions-section">
+      <h2>Instructions</h2>
+      <p>Your four-sentence paragraph goes here.</p>
+      <p>This is the second sentence.</p>
+      <p>This is the third sentence.</p>
+      <p>This is the fourth sentence.</p>
+    </div>
+  </div>
 
   <form action="/create" method="get">
     <button type="submit">Create New Room</button>
