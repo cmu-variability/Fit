@@ -112,7 +112,30 @@
       text-align: center;
     }
 
+    .chat-section {
+      border-radius: 5px;
+      border: 2px solid black;
+      padding: 10px;
+      padding-right: 40px;
+      margin-bottom: 5px;
+      margin-right: 50px;
+      background-color: rgb(171, 171, 171);
+    }
+    .chat-section h2 {
+      margin-top: 0px;
+      margin-bottom: 8px;
+    }
+
+    .instructions-section {
+      flex: 1;
+    }
+    .instructions-section h2,
+    .instructions-section p {
+      margin-top: 0;
+    }
+
   </style>
+  
 </head>
 <body>
   <div id="video-grid"></div>
@@ -158,14 +181,6 @@
       <button id="continueButton">Continue</button>
     </div>
   </div>
-  <% if (userRole==null) { %>
-  <div id="chat-box"></div>
-
-  <div id="chat-input">
-    <input type="text" id="message" placeholder="Type your message...">
-    <button id="send-button">Send</button>
-  </div>
-  <% } %>
 
   <% if (userRole!=null&&userRole.toLowerCase() === 'researcher') { %>
     <div class="researcher-table">
@@ -184,6 +199,40 @@
       </table>
     </div>
   <% } %>
+
+ 
+  <div style="display: flex;">
+    <!-- Gray background section (Chat) -->
+    <div>
+      <div class="chat-section">
+        <h2>Chat</h2>
+        <% if (userRole == null) { %>
+          <!-- chat box -->
+          <div id="chat-box"></div>
+          <div id="chat-input">
+            <input type="text" id="message" placeholder="Type your message...">
+            <button id="send-button">Send</button>
+          </div>
+    
+          <!-- researcher watching alert -->
+        <% } %>
+      </div>
+      <div id="researcherNotice" style="display:none;">
+        A researcher is present in this room.
+      </div>
+    </div>
+
+    <!-- Paragraph section -->
+    <div class="instructions-section">
+      <h2>Instructions</h2>
+      <p>Your four-sentence paragraph goes here.</p>
+      <p>This is the second sentence.</p>
+      <p>This is the third sentence.</p>
+      <p>This is the fourth sentence.</p>
+    </div>
+
+  </div>  
+
 
 </body>
 </html>

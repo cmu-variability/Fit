@@ -1,5 +1,6 @@
 const socket = io('/')
 const videoGrid = document.getElementById('video-grid')
+let roomUsers = []; // This will store the list of users in the room
 
 const myPeer = new Peer(undefined, {
   host: '/',
@@ -46,8 +47,11 @@ navigator.mediaDevices.getUserMedia({
   })
 
   socket.on('user-disconnected', userId => {
-    if (peers[userId]) peers[userId].close()
+    if (peers[userId]) {
+      peers[userId].close()
+    }
   })
+
 })
 }else{
   navigator.mediaDevices.getUserMedia({
@@ -106,8 +110,8 @@ function addVideoStream(video, stream) {
 const copyButton = document.getElementById('copyButton');
 
 copyButton.addEventListener('click', () => {
-  const roomId="http://localhost:3000/"+ROOM_ID;
-  navigator.clipboard.writeText(roomId)
+  const roomURL="http://localhost:3000/"+ROOM_ID;
+  navigator.clipboard.writeText(roomURL)
   .then(() => {
     console.log('Room UUID copied to clipboard');
   })
@@ -283,30 +287,64 @@ function hideButtons() {
 }
 
 // Function to send chat messages
-function sendMessage() {
+async function sendMessage() {
   const message = document.getElementById('message').value;
+
+  //does nothing if message is empty
+  if (message === "") {
+    return;
+  }
+
+  const response = await fetch(`/room/${ROOM_ID}/users`);
+  
+  if (response.ok) {
+    const users = await response.json();
+    roomUsers = users;    
+    console.log("local roomUsers:", roomUsers, "server users: ", users);
+  } else {
+    console.error("Failed to fetch users");
+  }
+
   socket.emit('chat-message', message);
+  console.log("message in sendMessage, ", message);
   document.getElementById('message').value = '';
 }
 
 // Function to append chat messages to the chat box
-function appendMessage(user, message) {
+function appendMessage(userName, message) {
   const chatBox = document.getElementById('chat-box');
   const messageElement = document.createElement('div');
-  messageElement.innerText = `${user}: ${message}`;
+  console.log("message: ", message);
+  messageElement.innerText = `${userName}: ${message}`;
   chatBox.appendChild(messageElement);
 }
 
 // Listen for chat messages from the server
 socket.on('chat-message', data => {
   const { userId, message } = data;
-  appendMessage(userId, message);
+  const user = roomUsers.find(u => u.userId === userId);
+  appendMessage(user.userName, message);
+  // appendMessage(userId, message);
 });
 
 // Event listener for the send button
 if (userRole == null) {
   document.getElementById('send-button').addEventListener('click', sendMessage);
 }
+
+
+// Listen to the 'researcher_status' event
+socket.on('researcher_status', (hasResearcher) => {
+  // Get the div where the researcher notice should appear
+  const researcherNotice = document.getElementById("researcherNotice");
+
+  if (hasResearcher) {
+    researcherNotice.style.display = 'block';
+    researcherNotice.innerHTML = "A researcher is present in this room.";
+  } else {
+    researcherNotice.style.display = 'none';
+  }
+});
 
 /* Firebase code begins here; all previous code is untouched */ 
 
