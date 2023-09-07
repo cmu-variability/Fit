@@ -23,15 +23,16 @@ let recordRTC;
 
 //if a researcher joins, their video is not added to the stream, so they answer null
 if(userRole==null){
-navigator.mediaDevices.getUserMedia({
-  video: true,
-  audio: true
-}).then(stream => {
-  mediaStream=stream
-  addVideoStream(myVideo, stream)
-  recordRTC = RecordRTC(stream,{
-    type: 'video'
+  navigator.mediaDevices.getUserMedia({
+    video: true,
+    audio: true
+  }).then(stream => {
+    mediaStream=stream
+    addVideoStream(myVideo, stream)
+    recordRTC = RecordRTC(stream,{
+      type: 'video'
   });
+
   recordRTC.startRecording();
 
   myPeer.on('call', call => {
@@ -42,14 +43,16 @@ navigator.mediaDevices.getUserMedia({
     })
   })
 
-  socket.on('user-connected', userId => {
-    connectToNewUser(userId, stream)
+  socket.on('user-connected', async userId => {
+    connectToNewUser(userId, stream);
+    await updateRoomUsers(); // Fetch and update room users
   })
 
-  socket.on('user-disconnected', userId => {
+  socket.on('user-disconnected', async userId => {
     if (peers[userId]) {
       peers[userId].close()
     }
+    await updateRoomUsers(); // Fetch and update room users
   })
 
 })
@@ -82,7 +85,17 @@ myPeer.on('open', id => {
   socket.emit('join-room', ROOM_ID, id, userName, userRole)
 })
 
-
+async function updateRoomUsers() {
+  const response = await fetch(`/room/${ROOM_ID}/users`);
+  
+  if (response.ok) {
+    const users = await response.json();
+    roomUsers = users;
+    console.log("Updated roomUsers:", roomUsers);
+  } else {
+    console.error("Failed to fetch users");
+  }
+}
 
 function connectToNewUser(userId, stream) {
   const call = myPeer.call(userId, stream)
@@ -105,6 +118,28 @@ function addVideoStream(video, stream) {
   videoGrid.append(video)
 }
 
+{/* <div class="container">
+<!-- Critical Moment Button -->
+<div class="main-button" id="markCriticalButton" onmouseover="showButtons()" onmouseout="hideButtons()">
+  Mark Critical Moment
+  <div class="hidden-buttons">
+    <button class="hidden-button" id="markCriticalOptionButton">Button 1</button>
+    <button class="hidden-button" id="markCriticalOptionButton">Button 2</button>
+    <button class="hidden-button" id="markCriticalOptionButton">Button 3</button>
+  </div>
+</div>
+<button id="copyButton">Copy Invite Link</button>
+<button id="leaveCallButton">Leave Call</button> */}
+
+function showButtons() {
+  const hiddenButtons = document.querySelector('.hidden-buttons');
+  hiddenButtons.style.display = 'block';
+}
+
+function hideButtons() {
+  const hiddenButtons = document.querySelector('.hidden-buttons');
+  hiddenButtons.style.display = 'none';
+}
 
 //enable user to copy the meeting link to their clipboard
 const copyButton = document.getElementById('copyButton');
@@ -276,16 +311,6 @@ navigator.mediaDevices.enumerateDevices()
     console.error('Error enumerating devices:', error);
 });
 
-function showButtons() {
-  const hiddenButtons = document.querySelector('.hidden-buttons');
-  hiddenButtons.style.display = 'block';
-}
-
-function hideButtons() {
-  const hiddenButtons = document.querySelector('.hidden-buttons');
-  hiddenButtons.style.display = 'none';
-}
-
 // Function to send chat messages
 async function sendMessage() {
   const message = document.getElementById('message').value;
@@ -295,17 +320,8 @@ async function sendMessage() {
     return;
   }
 
-  const response = await fetch(`/room/${ROOM_ID}/users`);
-  
-  if (response.ok) {
-    const users = await response.json();
-    roomUsers = users;    
-    console.log("local roomUsers:", roomUsers, "server users: ", users);
-  } else {
-    console.error("Failed to fetch users");
-  }
-
   socket.emit('chat-message', message);
+  console.log("roomUsers: ", roomUsers);
   console.log("message in sendMessage, ", message);
   document.getElementById('message').value = '';
 }
@@ -319,12 +335,24 @@ function appendMessage(userName, message) {
   chatBox.appendChild(messageElement);
 }
 
+
+//updates userList
+socket.on('update-room-users', () => {
+  // Do whatever you need with the updatedUserList.
+  // For instance, you can update the user list displayed on your webpage.
+  updateRoomUsers();
+});
+
 // Listen for chat messages from the server
 socket.on('chat-message', data => {
   const { userId, message } = data;
+  console.log("userName: ", userName);
   const user = roomUsers.find(u => u.userId === userId);
-  appendMessage(user.userName, message);
-  // appendMessage(userId, message);
+  if (user) {
+    appendMessage(user.userName, message);
+  } else {
+    appendMessage(user, message);
+  }
 });
 
 // Event listener for the send button
@@ -363,7 +391,8 @@ firebase.initializeApp(firebaseConfig);
 const database = firebase.database();
 
 // Find the "Mark Critical Moment" button element and Notes buttons
-const markCriticalButton = document.querySelector('.main-button');
+const markCriticalButton = document.getElementById('mainCriticalMomentButton');
+const markCriticalOptionButton = document.getElementById('criticalMomentOptionButton')
 const notesPopup = document.getElementById('notesPopup');
 const notesInput = document.getElementById('notesInput');
 const continueButton = document.getElementById('continueButton');
