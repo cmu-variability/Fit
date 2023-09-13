@@ -111,12 +111,16 @@ io.on('connection', socket => {
         let randomIndex = Math.floor(Math.random() * availableUserNames.length);
         let randomName = availableUserNames[randomIndex];
 
+        if (!userName) {
+          userName = randomName;
+        }
+
         // this does not account for all names being taken (but that is not happening)
         if (activeRooms[roomId]) {
-          activeRooms[roomId].users.push({ userId, userName: randomName, userRole });
+          activeRooms[roomId].users.push({ userId, userName, userRole });
           
           // Emit the updated user list to the newly joined user
-          socket.emit('update-room-users');
+          io.to(roomId).emit('update-room-users');
                     
           // Check for researcher and emit status
           const hasResearcher = activeRooms[roomId].users.some(user => user.userRole === 'Researcher');
@@ -141,6 +145,8 @@ io.on('connection', socket => {
               activeRooms[roomId].users.splice(index, 1);
             }
   
+            io.to(roomId).emit('update-room-users');
+
             // Re-check for researcher and emit status
             const hasResearcher = activeRooms[roomId].users.some(user => user.userRole === 'Researcher');
             io.to(roomId).emit('researcher_status', hasResearcher);
