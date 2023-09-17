@@ -200,10 +200,11 @@
   <% } %>
 
  
-  <div style="display: flex;">
-    <!-- Gray background section (Chat) -->
-    <div>
-      <div class="chat-section">
+  <div style="display: flex; width: 100%;">
+    <!-- Chat Container -->
+    <div style="flex: 1; max-width: 50%; display: flex; justify-content: flex-start;">
+      <!-- Gray background section (Chat) - confine it to its content -->
+      <div class="chat-section" style="background-color: #f1f1f1; width: auto;">
         <h2>Chat</h2>
 
         <!-- chat box -->
@@ -212,8 +213,8 @@
           <input type="text" id="message" placeholder="Type your message...">
           <button id="send-button">Send</button>
         </div>
-    
       </div>
+      
       <div id="researcherNotice" style="display:none;">
         A researcher is present in this room.
       </div>
@@ -221,7 +222,7 @@
 
     <!-- Paragraph section -->
     <% if (userRole==null) { %>
-      <div class="instructions-section">
+      <div class="instructions-section" style="flex: 1; max-width: 50%;">
         <h2>Instructions</h2>
         <p>Your four-sentence paragraph goes here.</p>
         <p>This is the second sentence.</p>
@@ -229,8 +230,7 @@
         <p>This is the fourth sentence.</p>
       </div>
     <% } %>
-
-  </div>  
+</div>
 
 
 </body>
