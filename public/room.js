@@ -354,8 +354,8 @@ if (true) {
 }
 
 
-// Listen to the 'researcher_status' event
-socket.on('researcher_status', (hasResearcher) => {
+// Listen to the 'researcher_status_update' event
+socket.on('researcher_status_update', (hasResearcher) => {
   // Get the div where the researcher notice should appear
   const researcherNotice = document.getElementById("researcherNotice");
 

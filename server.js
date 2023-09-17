@@ -123,8 +123,8 @@ io.on('connection', socket => {
           io.to(roomId).emit('update-room-users');
                     
           // Check for researcher and emit status
-          const hasResearcher = activeRooms[roomId].users.some(user => user.userRole === 'Researcher');
-          io.to(roomId).emit('researcher_status', hasResearcher);
+          const hasResearcher = (userRole === 'researcher');
+          io.to(roomId).emit('researcher_status_update', hasResearcher);
         }
       
         socket.to(roomId).emit('user-connected', userId, userName, userRole);
@@ -149,7 +149,7 @@ io.on('connection', socket => {
 
             // Re-check for researcher and emit status
             const hasResearcher = activeRooms[roomId].users.some(user => user.userRole === 'Researcher');
-            io.to(roomId).emit('researcher_status', hasResearcher);
+            io.to(roomId).emit('researcher_status_update', hasResearcher);
           }
         });
 
