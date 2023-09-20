@@ -37,9 +37,14 @@ app.get('/s', (req, res) => {
   res.render('second_phase',{roomId});
 });
 
-//Define the route that show a list of participants waiting in the second phase meeting room
-app.get('/w',(req,res)=>{
-  res.render('waiting',{secondActiveRooms})
+//Define the route that show a list of open waiting rooms
+app.get('/rw',(req,res)=>{
+  res.render('researcher_waiting',{secondActiveRooms})
+});
+
+//Define the route that makes a 
+app.get('/uw',(req,res)=>{
+  res.render('user_waiting',{secondActiveRooms})
 });
 
 // Active rooms data structure (you can choose your preferred data structure)
@@ -95,8 +100,8 @@ app.get('/room/:roomId/users', (req, res) => {
 io.on('connection', socket => {
     socket.on('join-room', (roomId, userId, userName, userRole) => {
       try {
+
         socket.join(roomId);
-        socket.to(roomId).emit('user-connected', userId,userName, userRole);
 
         // Get the names of the users in the room
         const userNamesInRoom = activeRooms[roomId].users.map(user => user.userName);
@@ -106,18 +111,33 @@ io.on('connection', socket => {
         let randomIndex = Math.floor(Math.random() * availableUserNames.length);
         let randomName = availableUserNames[randomIndex];
 
-        // this does not account for all names being taken
+        if (!userName) {
+          userName = randomName;
+        }
+
+        // this does not account for all names being taken (but that is not happening)
         if (activeRooms[roomId]) {
-          activeRooms[roomId].users.push({ userId, userName: randomName, userRole });
+          activeRooms[roomId].users.push({ userId, userName, userRole });
           
+          // Emit the updated user list to the newly joined user
+          io.to(roomId).emit('update-room-users');
+                    
           // Check for researcher and emit status
-          const hasResearcher = activeRooms[roomId].users.some(user => user.userRole === 'Researcher');
-          io.to(roomId).emit('researcher_status', hasResearcher);
-        }     
+          const hasResearcher = (userRole === 'researcher');
+          io.to(roomId).emit('researcher_status_update', hasResearcher);
+        }
+      
+        socket.to(roomId).emit('user-connected', userId, userName, userRole);
 
         socket.on('disconnect', () => {
           socket.to(roomId).emit('user-disconnected', userId);
-  
+
+          //sends message that user disconnected
+          io.to(roomId).emit('chat-message', { userId, message: "user disconnected" });
+
+          // Emit a chat message to notify all users in the room
+          io.to(roomId).emit('chat-message', { userId: "system", message: 'a user has left the room' });
+
           // Remove user from the list of users in the room
           if (activeRooms[roomId]) {
             const index = activeRooms[roomId].users.findIndex(u => u.userId === userId);
@@ -125,9 +145,11 @@ io.on('connection', socket => {
               activeRooms[roomId].users.splice(index, 1);
             }
   
+            io.to(roomId).emit('update-room-users');
+
             // Re-check for researcher and emit status
             const hasResearcher = activeRooms[roomId].users.some(user => user.userRole === 'Researcher');
-            io.to(roomId).emit('researcher_status', hasResearcher);
+            io.to(roomId).emit('researcher_status_update', hasResearcher);
           }
         });
 
@@ -139,19 +161,20 @@ io.on('connection', socket => {
         console.error('Error in join-room event:', error);
       }
     });
-    socket.on('join-second-room', (roomId, userId) => {
-      try {
-        socket.join(roomId);
-        socket.to(roomId).emit('user-connected', userId);
 
-        socket.on('disconnect', () => {
-          socket.to(roomId).emit('user-disconnected', userId);
-        });
+      socket.on('join-second-room', (roomId, userId) => {
+        try {
+          socket.join(roomId);
+          socket.to(roomId).emit('user-connected', userId);
 
-      } catch (error) {
-        console.error('Error in join-room event:', error);
-      }
-    });
+          socket.on('disconnect', () => {
+            socket.to(roomId).emit('user-disconnected', userId);
+          });
+
+        } catch (error) {
+          console.error('Error in join-room event:', error);
+        }
+      });
 });
 
 // Start the server

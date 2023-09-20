@@ -22,67 +22,73 @@ let mediaStream;
 let recordRTC;
 
 //if a researcher joins, their video is not added to the stream, so they answer null
-if(userRole==null){
-navigator.mediaDevices.getUserMedia({
-  video: true,
-  audio: true
-}).then(stream => {
-  mediaStream=stream
-  addVideoStream(myVideo, stream)
-  recordRTC = RecordRTC(stream,{
-    type: 'video'
-  });
-  recordRTC.startRecording();
-
-  myPeer.on('call', call => {
-    call.answer(stream)
-    const video = document.createElement('video')
-    call.on('stream', userVideoStream => {
-      addVideoStream(video, userVideoStream)
-    })
-  })
-
-  socket.on('user-connected', userId => {
-    connectToNewUser(userId, stream)
-  })
-
-  socket.on('user-disconnected', userId => {
-    if (peers[userId]) {
-      peers[userId].close()
-    }
-  })
-
-})
-}else{
+if(userRole==null) {
   navigator.mediaDevices.getUserMedia({
-    video: false,
+    video: true,
     audio: true
   }).then(stream => {
     mediaStream=stream
+    addVideoStream(myVideo, stream)
+    recordRTC = RecordRTC(stream,{
+      type: 'video'
+    });
+
+    recordRTC.startRecording();
+
     myPeer.on('call', call => {
-      call.answer(null)
+      call.answer(stream)
       const video = document.createElement('video')
       call.on('stream', userVideoStream => {
         addVideoStream(video, userVideoStream)
       })
     })
 
-    socket.on('user-connected', userId => {
-      connectToNewUser(userId, stream)
-    })
+  })} else {
 
-    socket.on('user-disconnected', userId => {
-      if (peers[userId]) peers[userId].close()
-    })
-  })
-}
+    navigator.mediaDevices.getUserMedia({
+      video: false,
+      audio: true
+    }).then(stream => {
+      mediaStream=stream
+      myPeer.on('call', call => {
+        call.answer(null)
+        const video = document.createElement('video')
+        call.on('stream', userVideoStream => {
+          addVideoStream(video, userVideoStream)
+        })
+      })
+    });
+  }
+
+
+socket.on('user-connected', async userId => {
+  connectToNewUser(userId, mediaStream);
+  await updateRoomUsers(); // Fetch and update room users
+})
+
+socket.on('user-disconnected', async userId => {
+  if (peers[userId]) {
+    peers[userId].close()
+  }
+  await updateRoomUsers(); // Fetch and update room users
+})
 
 
 myPeer.on('open', id => {
   socket.emit('join-room', ROOM_ID, id, userName, userRole)
 })
 
-
+async function updateRoomUsers() {
+  const response = await fetch(`/room/${ROOM_ID}/users`);
+  
+  if (response.ok) {
+    const users = await response.json();
+    roomUsers = users;
+    console.log("Updated roomUsers:", roomUsers);
+  } else {
+    console.error("Failed to fetch users");
+  }
+}
 
 function connectToNewUser(userId, stream) {
   const call = myPeer.call(userId, stream)
@@ -92,9 +98,11 @@ function connectToNewUser(userId, stream) {
   })
   call.on('close', () => {
     video.remove()
+    console.log('video is removed');
   })
 
   peers[userId] = call
+  console.log('peers', peers);
 }
 
 function addVideoStream(video, stream) {
@@ -105,6 +113,28 @@ function addVideoStream(video, stream) {
   videoGrid.append(video)
 }
 
+{/* <div class="container">
+<!-- Critical Moment Button -->
+<div class="main-button" id="markCriticalButton" onmouseover="showButtons()" onmouseout="hideButtons()">
+  Mark Critical Moment
+  <div class="hidden-buttons">
+    <button class="hidden-button" id="markCriticalOptionButton">Button 1</button>
+    <button class="hidden-button" id="markCriticalOptionButton">Button 2</button>
+    <button class="hidden-button" id="markCriticalOptionButton">Button 3</button>
+  </div>
+</div>
+<button id="copyButton">Copy Invite Link</button>
+<button id="leaveCallButton">Leave Call</button> */}
+
+function showButtons() {
+  const hiddenButtons = document.querySelector('.hidden-buttons');
+  hiddenButtons.style.display = 'block';
+}
+
+function hideButtons() {
+  const hiddenButtons = document.querySelector('.hidden-buttons');
+  hiddenButtons.style.display = 'none';
+}
 
 //enable user to copy the meeting link to their clipboard
 const copyButton = document.getElementById('copyButton');
@@ -276,36 +306,17 @@ navigator.mediaDevices.enumerateDevices()
     console.error('Error enumerating devices:', error);
 });
 
-function showButtons() {
-  const hiddenButtons = document.querySelector('.hidden-buttons');
-  hiddenButtons.style.display = 'block';
-}
-
-function hideButtons() {
-  const hiddenButtons = document.querySelector('.hidden-buttons');
-  hiddenButtons.style.display = 'none';
-}
-
 // Function to send chat messages
 async function sendMessage() {
   const message = document.getElementById('message').value;
-
+  console.log("even if this is researcher: ", message);
   //does nothing if message is empty
   if (message === "") {
     return;
   }
 
-  const response = await fetch(`/room/${ROOM_ID}/users`);
-  
-  if (response.ok) {
-    const users = await response.json();
-    roomUsers = users;    
-    console.log("local roomUsers:", roomUsers, "server users: ", users);
-  } else {
-    console.error("Failed to fetch users");
-  }
-
   socket.emit('chat-message', message);
+  console.log("roomUsers: ", roomUsers);
   console.log("message in sendMessage, ", message);
   document.getElementById('message').value = '';
 }
@@ -319,22 +330,32 @@ function appendMessage(userName, message) {
   chatBox.appendChild(messageElement);
 }
 
+
+socket.on('update-room-users', () => {
+  updateRoomUsers();
+});
+
 // Listen for chat messages from the server
 socket.on('chat-message', data => {
   const { userId, message } = data;
+  console.log("userName: ", userId);
   const user = roomUsers.find(u => u.userId === userId);
-  appendMessage(user.userName, message);
-  // appendMessage(userId, message);
+  if (user) {
+    appendMessage(user.userName, message);
+  } else {
+    appendMessage(user, message);
+  }
 });
 
 // Event listener for the send button
-if (userRole == null) {
+//can change this to only userRole = null if necessary
+if (true) {
   document.getElementById('send-button').addEventListener('click', sendMessage);
 }
 
 
-// Listen to the 'researcher_status' event
-socket.on('researcher_status', (hasResearcher) => {
+// Listen to the 'researcher_status_update' event
+socket.on('researcher_status_update', (hasResearcher) => {
   // Get the div where the researcher notice should appear
   const researcherNotice = document.getElementById("researcherNotice");
 
@@ -363,7 +384,8 @@ firebase.initializeApp(firebaseConfig);
 const database = firebase.database();
 
 // Find the "Mark Critical Moment" button element and Notes buttons
-const markCriticalButton = document.querySelector('.main-button');
+const markCriticalButton = document.getElementById('mainCriticalMomentButton');
+const markCriticalOptionButton = document.getElementById('criticalMomentOptionButton');
 const notesPopup = document.getElementById('notesPopup');
 const notesInput = document.getElementById('notesInput');
 const continueButton = document.getElementById('continueButton');
@@ -400,6 +422,14 @@ markCriticalButton.addEventListener('click', () => {
         
       // Reference to the location where data is stored (can change this if data should be separated)
       const criticalMomentsRef = database.ref('criticalMoments');
+
+      // Check if the reference exists
+      criticalMomentsRef.once('value', snapshot => {
+        if (!snapshot.exists()) {
+          // The reference doesn't exist, so you can create it and set initial data as empty
+          criticalMomentsRef.set({});
+        }
+      });
 
       // Push the data to the Firebase database 
       // Needs to occur separately from else statement due to asynchronous execution

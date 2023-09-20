@@ -48,16 +48,16 @@
       border-radius: 10px;
     }
 
-    .main-button {
-    position: relative;
-    display: inline-block;
-    background-color: rgb(227, 142, 227);
-    color: white;
-    padding: 10px 20px;
-    margin-right: 50px;
-    font-size:medium;
-    border-radius: 10px;
-    cursor: pointer;
+    .main-critical-moment-button, .copy-button,  .leave-call-button {
+      position: relative;
+      display: inline-block;
+      background-color: rgb(227, 142, 227);
+      color: white;
+      padding: 10px 20px;
+      margin-right: 50px;
+      font-size:medium;
+      border-radius: 10px;
+      cursor: pointer;
     }
 
     .hidden-buttons {
@@ -68,7 +68,7 @@
       width: 100%;
     }
 
-    .main-button:hover .hidden-buttons {
+    .main-critica-moment-button:hover, .hidden-buttons {
       display: block;
     }
 
@@ -80,6 +80,7 @@
       color: #000000;
       border: none;
       cursor: pointer;
+      margin-top: 5px;
     }
 
     table {
@@ -119,6 +120,7 @@
       padding-right: 40px;
       margin-bottom: 5px;
       margin-right: 50px;
+      margin-top: 20px;
       background-color: rgb(171, 171, 171);
     }
     .chat-section h2 {
@@ -165,16 +167,13 @@
 
   <div class="container">
     <!-- Critical Moment Button -->
-    <div class="main-button" onmouseover="showButtons()" onmouseout="hideButtons()">
-      Mark Critical Moment
-      <div class="hidden-buttons">
-        <button class="hidden-button">Button 1</button>
-        <button class="hidden-button">Button 2</button>
-        <button class="hidden-button">Button 3</button>
-      </div>
-    </div>
-    <button id="copyButton">Copy Invite Link</button>
-    <button id="leaveCallButton">Leave Call</button>
+    <% if (userRole!=null && userRole.toLowerCase() === 'researcher') { %>
+      <button id="mainCriticalMomentButton" class="main-critical-moment-button">Mark Critical</button>
+    <% } else { %>
+      <button id="mainCriticalMomentButton" class="main-critical-moment-button">Mark Critical</button>
+    <% } %>    
+    <button class="copy-button" id="copyButton">Copy Invite Link</button>
+    <button class="leave-call-button" id="leaveCallButton">Leave Call</button>
     <!-- Notes option will reveal for researchers -->
     <div class="popup" id="notesPopup">
       <textarea id="notesInput" placeholder="Enter notes"></textarea>
@@ -182,7 +181,7 @@
     </div>
   </div>
 
-  <% if (userRole!=null&&userRole.toLowerCase() === 'researcher') { %>
+  <% if (userRole!=null && userRole.toLowerCase() === 'researcher') { %>
     <div class="researcher-table">
       <h2>Marking Table</h2>
       <table>
@@ -201,37 +200,37 @@
   <% } %>
 
  
-  <div style="display: flex;">
-    <!-- Gray background section (Chat) -->
-    <div>
-      <div class="chat-section">
+  <div style="display: flex; width: 100%;">
+    <!-- Chat Container -->
+    <div style="flex: 1; max-width: 50%; display: flex; justify-content: flex-start;">
+      <!-- Gray background section (Chat) - confine it to its content -->
+      <div class="chat-section" style="background-color: #f1f1f1; width: auto;">
         <h2>Chat</h2>
-        <% if (userRole == null) { %>
-          <!-- chat box -->
-          <div id="chat-box"></div>
-          <div id="chat-input">
-            <input type="text" id="message" placeholder="Type your message...">
-            <button id="send-button">Send</button>
-          </div>
-    
-          <!-- researcher watching alert -->
-        <% } %>
+
+        <!-- chat box -->
+        <div id="chat-box"></div>
+        <div id="chat-input">
+          <input type="text" id="message" placeholder="Type your message...">
+          <button id="send-button">Send</button>
+        </div>
       </div>
+      
       <div id="researcherNotice" style="display:none;">
         A researcher is present in this room.
       </div>
     </div>
 
     <!-- Paragraph section -->
-    <div class="instructions-section">
-      <h2>Instructions</h2>
-      <p>Your four-sentence paragraph goes here.</p>
-      <p>This is the second sentence.</p>
-      <p>This is the third sentence.</p>
-      <p>This is the fourth sentence.</p>
-    </div>
-
-  </div>  
+    <% if (userRole==null) { %>
+      <div class="instructions-section" style="flex: 1; max-width: 50%;">
+        <h2>Instructions</h2>
+        <p>Your four-sentence paragraph goes here.</p>
+        <p>This is the second sentence.</p>
+        <p>This is the third sentence.</p>
+        <p>This is the fourth sentence.</p>
+      </div>
+    <% } %>
+</div>
 
 
 </body>
