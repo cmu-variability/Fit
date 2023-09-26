@@ -393,6 +393,23 @@ const continueButton = document.getElementById('continueButton');
 // Initialize the data object
 let dataToStore;
 
+// Define the updateTableWithNewData function
+function updateTableWithNewData(newData) {
+  const table = document.querySelector('.data-table');
+  // Create a new table row
+  const newRow = table.insertRow();
+
+  // Create cells for the table row
+  const timeCell = newRow.insertCell(0);
+  const researcherCell = newRow.insertCell(1);
+  const commentCell = newRow.insertCell(2);
+
+  // Populate the cells with the new data
+  timeCell.textContent = newData.timestamp;
+  researcherCell.textContent = newData.username;
+  commentCell.textContent = newData.notes;   
+}
+
 // Add click event listener to the button
 markCriticalButton.addEventListener('click', () => {
   // Extract shared data
@@ -400,7 +417,7 @@ markCriticalButton.addEventListener('click', () => {
   const timestamp = new Date().getTime();
   const formattedTimestamp = new Date(timestamp).toLocaleString();
 
-  if (userRole === "Researcher") {
+  if (userRole.toLowerCase() === "researcher") {
     // Show the notes popup
     notesPopup.style.display = 'block';
 
@@ -421,7 +438,14 @@ markCriticalButton.addEventListener('click', () => {
       notesPopup.style.display = 'none';
         
       // Reference to the location where data is stored (can change this if data should be separated)
-      const criticalMomentsRef = database.ref('criticalMoments');
+      const criticalMomentsRef = database.ref('criticalMoments').child(sessionID);
+
+      // Listen for changes to the specified session's data
+      criticalMomentsRef.on('child_added', snapshot => {
+        const newData = snapshot.val();
+        updateTableWithNewData(newData);
+      });
+
 
       // Check if the reference exists
       criticalMomentsRef.once('value', snapshot => {
@@ -451,7 +475,10 @@ markCriticalButton.addEventListener('click', () => {
       timestamp: formattedTimestamp
     };
 
-    const criticalMomentsRef = database.ref('criticalMoments');
+    console.log(userName);
+    console.log(userRole);
+
+    const criticalMomentsRef = database.ref('criticalMoments').child(sessionID);
 
     criticalMomentsRef.push(dataToStore)
       .then(() => {
@@ -460,9 +487,10 @@ markCriticalButton.addEventListener('click', () => {
       .catch(error => {
         console.error('Error storing data:', error);
       });
-  }
 
+  }
 });
+
 
 
 
