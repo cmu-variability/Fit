@@ -37,14 +37,21 @@ app.get('/s', (req, res) => {
   res.render('second_phase',{roomId});
 });
 
-//Define the route that show a list of open waiting rooms
-app.get('/rw',(req,res)=>{
-  res.render('researcher_waiting',{secondActiveRooms})
+app.get('/:roomId/waitingRoom', (req, res) => {
+  const roomId = req.params.roomId;
+  //... your logic to handle what should be done for this waiting room ...
+  secondActiveRooms[roomId] = {
+    users: []
+  };
+  // As an example, render a waiting room view:
+  res.render('second_phase', { roomId });
 });
 
-//Define the route that makes a 
-app.get('/uw',(req,res)=>{
-  res.render('user_waiting',{secondActiveRooms})
+
+//Define the route that show a list of open waiting rooms
+//currently not being used
+app.get('/rw',(req,res)=>{
+  res.render('researcher_waiting',{secondActiveRooms})
 });
 
 // Active rooms data structure (you can choose your preferred data structure)
