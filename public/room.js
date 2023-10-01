@@ -150,23 +150,6 @@ copyButton.addEventListener('click', () => {
   });
 });
 
-//when first half of the meeting end:
-//participant click leave call button to go to the second phase
-//researcher click leave call button to see a list of participant that are in the second phase
-const leaveCallButton = document.getElementById('leaveCallButton');
-
-leaveCallButton.addEventListener('click', () => {
-    if(userRole==null){
-    recordRTC.stopRecording(function() {
-        let blob = recordRTC.getBlob();
-        invokeSaveAsDialog(blob);
-    });
-    window.location.href = '/s';}
-    else{
-      window.location.href='/w'
-    }
-});
-
 
 //for recording
 function invokeSaveAsDialog(file) {
@@ -447,15 +430,16 @@ markCriticalButton.addEventListener('click', () => {
     dataToStore = {
       username: userName,
       role: userRole,
-      sessionid: sessionID,
       timestamp: formattedTimestamp
     };
 
-    const criticalMomentsRef = database.ref('criticalMoments');
+    // Use sessionID to create a reference within criticalMoments
+    const sessionRef = database.ref(`criticalMoments/${sessionID}`);
 
-    criticalMomentsRef.push(dataToStore)
+    // Push the data to the session-specific reference in Firebase
+    sessionRef.push(dataToStore)
       .then(() => {
-        console.log('Data stored in Firebase!');
+        console.log('Data stored in Firebase!!');
       })
       .catch(error => {
         console.error('Error storing data:', error);
@@ -465,5 +449,38 @@ markCriticalButton.addEventListener('click', () => {
 });
 
 
+//when first half of the meeting end:
+//participant click leave call button to go to the second phase
+//researcher click leave call button to see a list of participant that are in the second phase
+const leaveCallButton = document.getElementById('leaveCallButton');
 
+leaveCallButton.addEventListener('click', () => {
+  
+  // Stop recording if userRole is null
+  if (userRole == null) {
+    recordRTC.stopRecording(function() {
+      let blob = recordRTC.getBlob();
+      invokeSaveAsDialog(blob);
 
+      // Cleanup and then redirect
+      cleanupAndRedirect(`/${ROOM_ID}/waitingRoom`);
+    });
+  } else {
+    cleanupAndRedirect('/w');
+  }
+
+});
+
+function cleanupAndRedirect(redirectUrl) {
+  // Disconnect the socket
+  socket.disconnect();
+
+  // Stop all media streams
+  if (mediaStream) {
+    const tracks = mediaStream.getTracks();
+    tracks.forEach(track => track.stop());
+  }
+
+  // Redirect to the specified URL
+  window.location.href = redirectUrl;
+}
