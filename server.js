@@ -92,9 +92,19 @@ app.get('/:roomId', (req, res) => {
 });
 
 
-
 // Retrieve all the users in a room 
 app.get('/room/:roomId/users', (req, res) => {
+  const roomId = req.params.roomId;
+  if (activeRooms[roomId]) {
+    res.json(activeRooms[roomId].users);
+  } else {
+    res.status(404).json({ message: 'Room not found' });
+  }
+});
+
+
+// Retrieve all the users in a room 
+app.get('/room/:roomId/criticalMoments', (req, res) => {
   const roomId = req.params.roomId;
   if (activeRooms[roomId]) {
     res.json(activeRooms[roomId].users);
