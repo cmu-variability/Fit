@@ -113,19 +113,6 @@ function addVideoStream(video, stream) {
   videoGrid.append(video)
 }
 
-{/* <div class="container">
-<!-- Critical Moment Button -->
-<div class="main-button" id="markCriticalButton" onmouseover="showButtons()" onmouseout="hideButtons()">
-  Mark Critical Moment
-  <div class="hidden-buttons">
-    <button class="hidden-button" id="markCriticalOptionButton">Button 1</button>
-    <button class="hidden-button" id="markCriticalOptionButton">Button 2</button>
-    <button class="hidden-button" id="markCriticalOptionButton">Button 3</button>
-  </div>
-</div>
-<button id="copyButton">Copy Invite Link</button>
-<button id="leaveCallButton">Leave Call</button> */}
-
 function showButtons() {
   const hiddenButtons = document.querySelector('.hidden-buttons');
   hiddenButtons.style.display = 'block';
@@ -148,6 +135,23 @@ copyButton.addEventListener('click', () => {
   .catch((error) => {
     console.error('Failed to copy room UUID:', error);
   });
+});
+
+//when first half of the meeting end:
+//participant click leave call button to go to the second phase
+//researcher click leave call button to see a list of participant that are in the second phase
+const leaveCallButton = document.getElementById('leaveCallButton');
+
+leaveCallButton.addEventListener('click', () => {
+    if(userRole==null){
+    recordRTC.stopRecording(function() {
+        let blob = recordRTC.getBlob();
+        invokeSaveAsDialog(blob);
+    });
+    window.location.href = '/s';}
+    else{
+      window.location.href='/w'
+    }
 });
 
 
@@ -366,6 +370,47 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const database = firebase.database();
 
+// Use the global firebase object for authentication
+const auth = firebase.auth();
+
+// Function to sign in with Google
+function signInWithGoogle() {
+  const provider = new firebase.auth.GoogleAuthProvider();
+  // Add custom parameters to the Google provider
+  provider.setCustomParameters({
+    hd: 'andrew.cmu.edu', // Specify the allowed email domain
+  });
+
+  return auth.signInWithPopup(provider);
+}
+
+// Function to sign out
+function signOut() {
+  return firebase.auth().signOut();
+}
+
+// Listen for changes in the user's authentication state
+firebase.auth().onAuthStateChanged((user) => {
+  if (user) {
+    // User is signed in.
+    console.log('User signed in:', user);
+  } else {
+    // No user is signed in.
+    console.log('User signed out');
+  }
+});
+
+// Function to handle Google Sign-In button click
+function handleSignInWithGoogleClick() {
+  signInWithGoogle().then(() => {
+    // User is signed in successfully, you can perform additional actions if needed
+    console.log('User signed in with Google successfully');
+  }).catch((error) => {
+    console.error('Error signing in with Google:', error);
+    alert('Error signing in with Google. Please try again.');
+  });
+}
+
 // Find the "Mark Critical Moment" button element and Notes buttons
 const markCriticalButton = document.getElementById('mainCriticalMomentButton');
 const markCriticalOptionButton = document.getElementById('criticalMomentOptionButton');
@@ -400,7 +445,7 @@ markCriticalButton.addEventListener('click', () => {
   const timestamp = new Date().getTime();
   const formattedTimestamp = new Date(timestamp).toLocaleString();
 
-  if (userRole.toLowerCase() === "researcher") {
+  if (userRole && userRole.toLowerCase() === "researcher") {
     // Show the notes popup
     notesPopup.style.display = 'block';
 
@@ -454,20 +499,18 @@ markCriticalButton.addEventListener('click', () => {
     dataToStore = {
       username: userName,
       role: userRole,
+      sessionid: sessionID,
       timestamp: formattedTimestamp
     };
-    
-    // Use sessionID to create a reference within criticalMoments
-    const sessionRef = database.ref(`criticalMoments/${sessionID}`);
+
     console.log(userName);
     console.log(userRole);
 
     const criticalMomentsRef = database.ref('criticalMoments').child(sessionID);
 
-    // Push the data to the session-specific reference in Firebase
-    sessionRef.push(dataToStore)
+    criticalMomentsRef.push(dataToStore)
       .then(() => {
-        console.log('Data stored in Firebase!!');
+        console.log('Data stored in Firebase!');
       })
       .catch(error => {
         console.error('Error storing data:', error);
@@ -477,36 +520,6 @@ markCriticalButton.addEventListener('click', () => {
 });
 
 
-//when first half of the meeting end:
-//participant click leave call button to go to the second phase
-//researcher click leave call button to see a list of participant that are in the second phase
-const leaveCallButton = document.getElementById('leaveCallButton');
 
-leaveCallButton.addEventListener('click', () => {
-  
-  // Stop recording if userRole is null
-  if (userRole == null) {
-    recordRTC.stopRecording(function() {
-      let blob = recordRTC.getBlob();
-      invokeSaveAsDialog(blob);
 
-      // Cleanup and then redirect
-      cleanupAndRedirect(`/${ROOM_ID}/waitingRoom`);
-    });
-  } else {
-    cleanupAndRedirect('/w');
-  }
 
-});
-
-function cleanupAndRedirect(redirectUrl) {
-  // Disconnect the socket
-  socket.disconnect();
-
-  // Stop all media streams
-  if (mediaStream) {
-    const tracks = mediaStream.getTracks();
-    tracks.forEach(track => track.stop());
-  }
-  window.location.href = redirectUrl;
-}
