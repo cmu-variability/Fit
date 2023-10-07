@@ -76,42 +76,42 @@ function pushDataToFirebase(table, sessionID, userRole, userName, notes = null) 
 }
 
 // Use the global firebase object for authentication
-// const auth = firebase.auth();
+const auth = firebase.auth();
 
-// // Function to sign in with Google
-// function signInWithGoogle() {
-//   const provider = new firebase.auth.GoogleAuthProvider();
-//   // Add custom parameters to the Google provider
-//   provider.setCustomParameters({
-//     hd: 'andrew.cmu.edu', // Specify the allowed email domain
-//   });
+// Function to sign in with Google
+function signInWithGoogle() {
+  const provider = new firebase.auth.GoogleAuthProvider();
+  // Add custom parameters to the Google provider
+  provider.setCustomParameters({
+    hd: 'andrew.cmu.edu', // Specify the allowed email domain
+  });
 
-//   return auth.signInWithPopup(provider);
-// }
+  return auth.signInWithPopup(provider);
+}
 
-// // Function to sign out
-// function signOut() {
-//   return firebase.auth().signOut();
-// }
+// Function to sign out
+function signOut() {
+  return firebase.auth().signOut();
+}
 
-// // Listen for changes in the user's authentication state
-// firebase.auth().onAuthStateChanged((user) => {
-//   if (user) {
-//     // User is signed in.
-//     console.log('User signed in:', user);
-//   } else {
-//     // No user is signed in.
-//     console.log('User signed out');
-//   }
-// });
+// Listen for changes in the user's authentication state
+firebase.auth().onAuthStateChanged((user) => {
+  if (user) {
+    // User is signed in.
+    console.log('User signed in:', user);
+  } else {
+    // No user is signed in.
+    console.log('User signed out');
+  }
+});
 
-// // Function to handle Google Sign-In button click
-// function handleSignInWithGoogleClick() {
-//   signInWithGoogle().then(() => {
-//     // User is signed in successfully, you can perform additional actions if needed
-//     console.log('User signed in with Google successfully');
-//   }).catch((error) => {
-//     console.error('Error signing in with Google:', error);
-//     alert('Error signing in with Google. Please try again.');
-//   });
-// }
+// Function to handle Google Sign-In button click
+function handleSignInWithGoogleClick() {
+  signInWithGoogle().then(() => {
+    // User is signed in successfully, you can perform additional actions if needed
+    console.log('User signed in with Google successfully');
+  }).catch((error) => {
+    console.error('Error signing in with Google:', error);
+    alert('Error signing in with Google. Please try again.');
+  });
+}
