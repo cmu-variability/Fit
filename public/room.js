@@ -352,3 +352,26 @@ socket.on('researcher_status_update', (hasResearcher) => {
     researcherNotice.style.display = 'none';
   }
 });
+
+// Links to Firebase Config Code
+const markCriticalButton = document.getElementById('mainCriticalMomentButton');
+const notesPopup = document.getElementById('notesPopup');
+const notesInput = document.getElementById('notesInput');
+const continueButton = document.getElementById('continueButton');
+const table = document.querySelector('.data-table');
+
+markCriticalButton.addEventListener('click', () => {
+  const sessionID = ROOM_ID;
+  const userRoleLower = userRole?.toLowerCase() || '';
+
+  if (userRoleLower === "researcher") {
+    notesPopup.style.display = 'block';
+    continueButton.addEventListener('click', () => {
+      const notes = notesInput.value;
+      pushDataToFirebase(table, sessionID, userRole, userName, notes);
+      notesPopup.style.display = 'none';
+    });
+  } else {
+    pushDataToFirebase(table, sessionID, 'Participant', userName);
+  }
+});
