@@ -27,15 +27,15 @@ app.get('/r', (req, res) => {
 
 const secondActiveRooms = {};
 
-//Define the second-phase meeting room route
-app.get('/s', (req, res) => {
-  const roomId = uuidv4();
-  secondActiveRooms[roomId] = {
-    users: []
-  };
+// trying to get rid of this, just having one /s room
+// app.get('/s', (req, res) => {
+//   const roomId = uuidv4();
+//   secondActiveRooms[roomId] = {
+//     users: []
+//   };
 
-  res.render('second_phase',{roomId});
-});
+//   res.render('second_phase',{roomId});
+// });
 
 app.get('/:roomId/waitingRoom', (req, res) => {
   const roomId = req.params.roomId;
@@ -75,9 +75,7 @@ app.get('/:roomId', (req, res) => {
   const userRole = req.query.userRole;
   const userName = req.query.userName;
 
-  if (secondActiveRooms.hasOwnProperty(roomId)) {
-    res.render('second_phase', { roomId });
-  } else if (activeRooms.hasOwnProperty(roomId)) {
+  if (activeRooms.hasOwnProperty(roomId)) {
     // Ensure the 'users' field exists before trying to access it.
     if (activeRooms[roomId].hasOwnProperty('users')) {
       const roomUsers = activeRooms[roomId].users; // Fetch roomUsers from activeRooms

@@ -144,12 +144,12 @@ const leaveCallButton = document.getElementById('leaveCallButton');
 
 leaveCallButton.addEventListener('click', () => {
     if(userRole==null){
-    recordRTC.stopRecording(function() {
-        let blob = recordRTC.getBlob();
-        invokeSaveAsDialog(blob);
-    });
-    window.location.href = '/s';}
-    else{
+      recordRTC.stopRecording(function() {
+          let blob = recordRTC.getBlob();
+          invokeSaveAsDialog(blob);
+      });
+      window.location.href = '/' + ROOM_ID + '/waitingRoom';
+    }else{
       window.location.href='/w'
     }
 });
