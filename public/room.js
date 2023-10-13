@@ -143,15 +143,16 @@ copyButton.addEventListener('click', () => {
 const leaveCallButton = document.getElementById('leaveCallButton');
 
 leaveCallButton.addEventListener('click', () => {
-    if(userRole==null){
-      recordRTC.stopRecording(function() {
-          let blob = recordRTC.getBlob();
-          invokeSaveAsDialog(blob);
-      });
-      window.location.href = '/' + ROOM_ID + '/waitingRoom';
-    }else{
-      window.location.href='/w'
-    }
+    // if(userRole==null){
+    //   recordRTC.stopRecording(function() {
+    //       let blob = recordRTC.getBlob();
+    //       invokeSaveAsDialog(blob);
+    //   });
+    //   window.location.href = '/' + ROOM_ID + '/waitingRoom';
+    // }else{
+    //   window.location.href='/w'
+    // }
+    setUserDataToSecondRoom();
 });
 
 
@@ -370,7 +371,7 @@ markCriticalButton.addEventListener('click', () => {
       const notes = notesInput.value;
       pushDataToFirebase(table, sessionID, userRole, userName, notes);
       notesPopup.style.display = 'none';
-    });
+    }); 
   } else {
     pushDataToFirebase(table, sessionID, 'Participant', userName);
   }

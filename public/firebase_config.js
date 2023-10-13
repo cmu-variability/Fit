@@ -37,7 +37,7 @@ function pushDataToFirebase(table, sessionID, userRole, userName, notes = null) 
 
   // Create an object with the data to be stored
   const dataToStore = {
-    username: userName,
+    username: user.uid,
     role: userRole,
     sessionid: sessionID,
     timestamp: formattedTimestamp,
@@ -77,27 +77,30 @@ function pushDataToFirebase(table, sessionID, userRole, userName, notes = null) 
 
 // Use the global firebase object for authentication
 const auth = firebase.auth();
+auth.setPersistence(firebase.auth.Auth.Persistence.SESSION);
 const user = firebase.auth().currentUser;
 
 const userInfoRef = database.ref('userInfo');
 
-document.getElementById('createRoomForm').addEventListener('submit', function(event) {
-  event.preventDefault();  // Stop the form from submitting
+function setUserDataToRoom(uid, status) {
+  userInfoRef.child(uid).set({ status: status })
+    .then(() => {
+      console.log('User status set to', status);
+    })
+    .catch(error => {
+      console.error('Error updating user status:', error);
+    });
+}
 
-  const user = firebase.auth().currentUser;
-  if (user) {
-      // If the user is logged in, set their status as "active"
-      userInfoRef.child(user.uid).set({
-          status: "active"
-      }).then(() => {
-          console.log('User status set to active!');
-          // After your operation has completed, submit the form
-          event.target.submit(); // This submits the form that the event was attached to
-      }).catch((error) => {
-          console.error('Error updating user status:', error);
-      });
-  }
-});
+function setUserDataToSecondRoom() {
+    console.log("hell yeah", user);
+    // If the user is logged in, set their status as "active"
+    userInfoRef.child(user.uid).set({
+      status: "secondRoom"
+  }).catch((error) => {
+      console.error('Error updating user status:', error);
+  });
+}
 
 
 // Function to sign in with Google
@@ -119,22 +122,20 @@ function signOut() {
 
 // Listen for changes in the user's authentication state
 firebase.auth().onAuthStateChanged((user) => {
-  const loginStatusElement = document.getElementById('login-status');
-  const createRoomButton = document.getElementById('createRoomButton');
   if (user) {
     // User is signed in.
     console.log('User signed in:', user);
-    loginStatusElement.textContent = `Logged in`;
-    // loginStatusElement.textContent = `Logged in as ${username || userEmail}`;
-    createRoomButton.disabled = false;
   } else {
     // No user is signed in.
     console.log('User is not signed in');
     // handleSignInWithGoogleClick();
-    loginStatusElement.textContent = 'Not logged in';
-    createRoomButton.disabled = true;
   }
 });
+
+// for callbacks in room specific js files
+function onUserAuthStateChanged(callback) {
+  auth.onAuthStateChanged(callback);
+}
 
 // Function to handle Google Sign-In button click
 function handleSignInWithGoogleClick() {

@@ -63,9 +63,9 @@ function addVideoStream(video, stream) {
   videoGrid.append(video)
 }
 
-const leaveCallButton = document.getElementById('leaveCallButton');
+const leaveSecondCallButton = document.getElementById('leaveSecondCallButton');
 
-leaveCallButton.addEventListener('click', () => {
+leaveSecondCallButton.addEventListener('click', () => {
     window.location.href = '/';
 });
 
