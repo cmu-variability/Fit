@@ -66,7 +66,8 @@ function addVideoStream(video, stream) {
 const leaveSecondCallButton = document.getElementById('leaveSecondCallButton');
 
 leaveSecondCallButton.addEventListener('click', () => {
-    window.location.href = '/';
+  window.location.href = '/';
+  setUserDataToNoRoom();
 });
 
 const toggleMic = document.getElementById('toggle-mic');

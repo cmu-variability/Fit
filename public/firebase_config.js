@@ -78,7 +78,18 @@ function pushDataToFirebase(table, sessionID, userRole, userName, notes = null) 
 // Use the global firebase object for authentication
 const auth = firebase.auth();
 auth.setPersistence(firebase.auth.Auth.Persistence.SESSION);
-const user = firebase.auth().currentUser;
+let user = null;
+
+auth.onAuthStateChanged((currentUser) => {
+  if (currentUser) {
+      // User is signed in.
+      user = currentUser;
+      console.log("yes User logged in:", user);
+  } else {
+      // User is signed out.
+      console.log("no User logged out");
+  }
+});
 
 const userInfoRef = database.ref('userInfo');
 
@@ -93,13 +104,21 @@ function setUserDataToRoom(uid, status) {
 }
 
 function setUserDataToSecondRoom() {
-    console.log("hell yeah", user);
-    // If the user is logged in, set their status as "active"
+    console.log("user went to second room", user);
     userInfoRef.child(user.uid).set({
-      status: "secondRoom"
+      status: "second room"
   }).catch((error) => {
       console.error('Error updating user status:', error);
   });
+}
+
+function setUserDataToNoRoom() {
+  console.log("user went to no room", user);
+  userInfoRef.child(user.uid).set({
+    status: "no room"
+}).catch((error) => {
+    console.error('Error updating user status:', error);
+});
 }
 
 
@@ -119,18 +138,6 @@ function signOut() {
   console.log("user has signed out");
   return firebase.auth().signOut();
 }
-
-// Listen for changes in the user's authentication state
-firebase.auth().onAuthStateChanged((user) => {
-  if (user) {
-    // User is signed in.
-    console.log('User signed in:', user);
-  } else {
-    // No user is signed in.
-    console.log('User is not signed in');
-    // handleSignInWithGoogleClick();
-  }
-});
 
 // for callbacks in room specific js files
 function onUserAuthStateChanged(callback) {
