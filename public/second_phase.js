@@ -67,7 +67,7 @@ const leaveSecondCallButton = document.getElementById('leaveSecondCallButton');
 
 leaveSecondCallButton.addEventListener('click', () => {
   window.location.href = '/';
-  setUserDataToNoRoom();
+  setUserDataToRoom(user.uid, "no room", null);
 });
 
 const toggleMic = document.getElementById('toggle-mic');

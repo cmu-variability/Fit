@@ -80,21 +80,36 @@ const auth = firebase.auth();
 auth.setPersistence(firebase.auth.Auth.Persistence.SESSION);
 let user = null;
 
+const userInfoRef = database.ref('userInfo');
+
 auth.onAuthStateChanged((currentUser) => {
   if (currentUser) {
-      // User is signed in.
-      user = currentUser;
-      console.log("yes User logged in:", user);
+    user = currentUser;
+    console.log("onAuthStateChanged: User logged in:", user);
+
+    userInfoRef.child(user.uid).once('value').then((snapshot) => {
+      const userInfo = snapshot.val();
+      const url = userInfo && userInfo.url;
+
+      console.log("window.location.href", window.location.href);
+      console.log("url", url);
+      // this automatically moves a user to the room they are supposed to be in
+      // if they are on another screen
+
+      // if (url && window.location.href !== ("http://localhost:3000" + url)) {
+      //   window.location.href = "http://localhost:3000" + url;
+      // }
+    }).catch((error) => {
+      console.error('Error fetching user info:', error);
+    });
   } else {
-      // User is signed out.
-      console.log("no User logged out");
+    console.log("no, User is logged out");
   }
 });
 
-const userInfoRef = database.ref('userInfo');
 
-function setUserDataToRoom(uid, status) {
-  userInfoRef.child(uid).set({ status: status })
+function setUserDataToRoom(uid, status, url) {
+  userInfoRef.child(uid).set({ status: status, url: url})
     .then(() => {
       console.log('User status set to', status);
     })
@@ -144,10 +159,16 @@ function onUserAuthStateChanged(callback) {
   auth.onAuthStateChanged(callback);
 }
 
+// reads current URL of user and moves to them
+function checkCurrentUserURL() {
+
+}
+
 // Function to handle Google Sign-In button click
 function handleSignInWithGoogleClick() {
   signInWithGoogle().then(() => {
     // User is signed in successfully, you can perform additional actions if needed
+    checkCurrentUserURL();
     console.log('User signed in with Google successfully');
   }).catch((error) => {
     console.error('Error signing in with Google:', error);

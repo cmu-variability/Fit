@@ -152,7 +152,7 @@ leaveCallButton.addEventListener('click', () => {
     }else{
       window.location.href='/rw'
     }
-    setUserDataToSecondRoom();
+    setUserDataToRoom(user.uid, "second room", ROOM_ID + "/waitingRoom");
 });
 
 

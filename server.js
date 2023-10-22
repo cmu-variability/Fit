@@ -39,11 +39,9 @@ const secondActiveRooms = {};
 
 app.get('/:roomId/waitingRoom', (req, res) => {
   const roomId = req.params.roomId;
-  //... your logic to handle what should be done for this waiting room ...
   secondActiveRooms[roomId] = {
     users: []
   };
-  // As an example, render a waiting room view:
   res.render('second_phase', { roomId });
 });
 
@@ -57,16 +55,14 @@ app.get('/rw',(req,res)=>{
 // Active rooms data structure (you can choose your preferred data structure)
 const activeRooms = {};
 
-// Define the route to create a new room with a UUID
 app.get('/create', (req, res) => {
-  // Generate a new UUID for the room
   const roomId = uuidv4();
 
-  // Create a new room in the activeRooms data structure
   activeRooms[roomId] = {
     users: []
   };
-  res.redirect(`/${roomId}`);
+
+  res.json({ roomId });
 });
 
 // Define the route to join an active room with a UUID
