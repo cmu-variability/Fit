@@ -42,23 +42,29 @@ if(userRole==null) {
         addVideoStream(video, userVideoStream)
       })
     })
+  })
+} else {
 
-  })} else {
-
-    navigator.mediaDevices.getUserMedia({
-      video: false,
-      audio: true
-    }).then(stream => {
-      mediaStream=stream
-      myPeer.on('call', call => {
-        call.answer(null)
-        const video = document.createElement('video')
-        call.on('stream', userVideoStream => {
-          addVideoStream(video, userVideoStream)
-        })
-      })
+  navigator.mediaDevices.getUserMedia({
+    video: true,
+    audio: true
+  }).then(stream => {
+    mediaStream=stream
+    addVideoStream(myVideo, stream)
+    recordRTC = RecordRTC(stream,{
+      type: 'video'
     });
-  }
+
+    myPeer.on('call', call => {
+      call.answer(stream)
+      const video = document.createElement('video')
+      call.on('stream', userVideoStream => {
+        addVideoStream(video, userVideoStream)
+      })
+    })
+
+  })
+}
 
 
 socket.on('user-connected', async userId => {
@@ -74,7 +80,22 @@ socket.on('user-disconnected', async userId => {
 })
 
 
+// removes user from room on tab close
+// window.addEventListener('beforeunload', (event) => {
+//   event.preventDefault();
+
+//   if (myPeer) {
+//     myPeer.destroy();
+//   }
+
+//   socket.emit('leave-room', ROOM_ID);
+
+//   return 'Are you sure you want to leave?';
+// });
+
+
 myPeer.on('open', id => {
+  console.log("ROOM_ID: ", ROOM_ID, id, userName, userRole);
   socket.emit('join-room', ROOM_ID, id, userName, userRole)
 })
 
@@ -373,6 +394,6 @@ markCriticalButton.addEventListener('click', () => {
       notesPopup.style.display = 'none';
     }); 
   } else {
-    pushDataToFirebase(table, sessionID, 'Participant', userName);
+    pushDataToFirebase(table, sessionID, 'Researcher', userName);
   }
 });

@@ -103,10 +103,20 @@ auth.onAuthStateChanged((currentUser) => {
       console.error('Error fetching user info:', error);
     });
   } else {
+    redirectToIndexPage();
     console.log("no, User is logged out");
   }
 });
 
+function redirectToIndexPage() {
+  console.log('Redirecting to sign-in page');
+  if (window.location.href !== ("localhost:3000") && window.location.href !== ("http://localhost:3000") && window.location.href !== ("http://localhost:3000/")) {
+    console.log("it went inside", window.location.href);
+    window.location.href = "http://localhost:3000";
+  } else {
+    console.log("it did not go inside")
+  }
+}
 
 function setUserDataToRoom(uid, status, url) {
   userInfoRef.child(uid).set({ status: status, url: url})

@@ -110,8 +110,8 @@ app.get('/room/:roomId/criticalMoments', (req, res) => {
 
 io.on('connection', socket => {
     socket.on('join-room', (roomId, userId, userName, userRole) => {
+      console.log(`Client ${userId} is joining room: ${roomId}`);
       try {
-
         socket.join(roomId);
 
         // Get the names of the users in the room
@@ -165,6 +165,7 @@ io.on('connection', socket => {
         });
 
         socket.on('chat-message', message => {
+          console.log("chat message sent: ", message);
           io.to(roomId).emit('chat-message', { userId, message });
         });
 
@@ -173,19 +174,19 @@ io.on('connection', socket => {
       }
     });
 
-      socket.on('join-second-room', (roomId, userId) => {
-        try {
-          socket.join(roomId);
-          socket.to(roomId).emit('user-connected', userId);
+    socket.on('join-second-room', (roomId, userId) => {
+      try {
+        socket.join(roomId);
+        socket.to(roomId).emit('user-connected', userId);
 
-          socket.on('disconnect', () => {
-            socket.to(roomId).emit('user-disconnected', userId);
-          });
+        socket.on('disconnect', () => {
+          socket.to(roomId).emit('user-disconnected', userId);
+        });
 
-        } catch (error) {
-          console.error('Error in join-room event:', error);
-        }
-      });
+      } catch (error) {
+        console.error('Error in join-room event:', error);
+      }
+    });
 });
 
 // Start the server
