@@ -37,7 +37,7 @@ function pushDataToFirebase(table, sessionID, userRole, userName, notes = null) 
 
   // Create an object with the data to be stored
   const dataToStore = {
-    username: userName,
+    username: user.uid,
     role: userRole,
     sessionid: sessionID,
     timestamp: formattedTimestamp,
@@ -77,6 +77,75 @@ function pushDataToFirebase(table, sessionID, userRole, userName, notes = null) 
 
 // Use the global firebase object for authentication
 const auth = firebase.auth();
+auth.setPersistence(firebase.auth.Auth.Persistence.SESSION);
+let user = null;
+
+const userInfoRef = database.ref('userInfo');
+
+auth.onAuthStateChanged((currentUser) => {
+  if (currentUser) {
+    user = currentUser;
+    console.log("onAuthStateChanged: User logged in:", user);
+
+    userInfoRef.child(user.uid).once('value').then((snapshot) => {
+      const userInfo = snapshot.val();
+      const url = userInfo && userInfo.url;
+
+      console.log("window.location.href", window.location.href);
+      console.log("url", url);
+      // this automatically moves a user to the room they are supposed to be in
+      // if they are on another screen
+
+      // if (url && window.location.href !== ("http://localhost:3000" + url)) {
+      //   window.location.href = "http://localhost:3000" + url;
+      // }
+    }).catch((error) => {
+      console.error('Error fetching user info:', error);
+    });
+  } else {
+    redirectToIndexPage();
+    console.log("no, User is logged out");
+  }
+});
+
+function redirectToIndexPage() {
+  console.log('Redirecting to sign-in page');
+  if (window.location.href !== ("localhost:3000") && window.location.href !== ("http://localhost:3000") && window.location.href !== ("http://localhost:3000/")) {
+    console.log("it went inside", window.location.href);
+    window.location.href = "http://localhost:3000";
+  } else {
+    console.log("it did not go inside")
+  }
+}
+
+function setUserDataToRoom(uid, status, url) {
+  userInfoRef.child(uid).set({ status: status, url: url})
+    .then(() => {
+      console.log('User status set to', status);
+    })
+    .catch(error => {
+      console.error('Error updating user status:', error);
+    });
+}
+
+function setUserDataToSecondRoom() {
+    console.log("user went to second room", user);
+    userInfoRef.child(user.uid).set({
+      status: "second room"
+  }).catch((error) => {
+      console.error('Error updating user status:', error);
+  });
+}
+
+function setUserDataToNoRoom() {
+  console.log("user went to no room", user);
+  userInfoRef.child(user.uid).set({
+    status: "no room"
+}).catch((error) => {
+    console.error('Error updating user status:', error);
+});
+}
+
 
 // Function to sign in with Google
 function signInWithGoogle() {
@@ -91,24 +160,25 @@ function signInWithGoogle() {
 
 // Function to sign out
 function signOut() {
+  console.log("user has signed out");
   return firebase.auth().signOut();
 }
 
-// Listen for changes in the user's authentication state
-firebase.auth().onAuthStateChanged((user) => {
-  if (user) {
-    // User is signed in.
-    console.log('User signed in:', user);
-  } else {
-    // No user is signed in.
-    console.log('User signed out');
-  }
-});
+// for callbacks in room specific js files
+function onUserAuthStateChanged(callback) {
+  auth.onAuthStateChanged(callback);
+}
+
+// reads current URL of user and moves to them
+function checkCurrentUserURL() {
+
+}
 
 // Function to handle Google Sign-In button click
 function handleSignInWithGoogleClick() {
   signInWithGoogle().then(() => {
     // User is signed in successfully, you can perform additional actions if needed
+    checkCurrentUserURL();
     console.log('User signed in with Google successfully');
   }).catch((error) => {
     console.error('Error signing in with Google:', error);

@@ -27,23 +27,21 @@ app.get('/r', (req, res) => {
 
 const secondActiveRooms = {};
 
-//Define the second-phase meeting room route
-app.get('/s', (req, res) => {
-  const roomId = uuidv4();
-  secondActiveRooms[roomId] = {
-    users: []
-  };
+// trying to get rid of this, just having one /s room
+// app.get('/s', (req, res) => {
+//   const roomId = uuidv4();
+//   secondActiveRooms[roomId] = {
+//     users: []
+//   };
 
-  res.render('second_phase',{roomId});
-});
+//   res.render('second_phase',{roomId});
+// });
 
 app.get('/:roomId/waitingRoom', (req, res) => {
   const roomId = req.params.roomId;
-  //... your logic to handle what should be done for this waiting room ...
   secondActiveRooms[roomId] = {
     users: []
   };
-  // As an example, render a waiting room view:
   res.render('second_phase', { roomId });
 });
 
@@ -57,16 +55,14 @@ app.get('/rw',(req,res)=>{
 // Active rooms data structure (you can choose your preferred data structure)
 const activeRooms = {};
 
-// Define the route to create a new room with a UUID
 app.get('/create', (req, res) => {
-  // Generate a new UUID for the room
   const roomId = uuidv4();
 
-  // Create a new room in the activeRooms data structure
   activeRooms[roomId] = {
     users: []
   };
-  res.redirect(`/${roomId}`);
+
+  res.json({ roomId });
 });
 
 // Define the route to join an active room with a UUID
@@ -75,9 +71,7 @@ app.get('/:roomId', (req, res) => {
   const userRole = req.query.userRole;
   const userName = req.query.userName;
 
-  if (secondActiveRooms.hasOwnProperty(roomId)) {
-    res.render('second_phase', { roomId });
-  } else if (activeRooms.hasOwnProperty(roomId)) {
+  if (activeRooms.hasOwnProperty(roomId)) {
     // Ensure the 'users' field exists before trying to access it.
     if (activeRooms[roomId].hasOwnProperty('users')) {
       const roomUsers = activeRooms[roomId].users; // Fetch roomUsers from activeRooms
@@ -116,8 +110,8 @@ app.get('/room/:roomId/criticalMoments', (req, res) => {
 
 io.on('connection', socket => {
     socket.on('join-room', (roomId, userId, userName, userRole) => {
+      console.log(`Client ${userId} is joining room: ${roomId}`);
       try {
-
         socket.join(roomId);
 
         // Get the names of the users in the room
@@ -171,6 +165,7 @@ io.on('connection', socket => {
         });
 
         socket.on('chat-message', message => {
+          console.log("chat message sent: ", message);
           io.to(roomId).emit('chat-message', { userId, message });
         });
 
@@ -179,19 +174,19 @@ io.on('connection', socket => {
       }
     });
 
-      socket.on('join-second-room', (roomId, userId) => {
-        try {
-          socket.join(roomId);
-          socket.to(roomId).emit('user-connected', userId);
+    socket.on('join-second-room', (roomId, userId) => {
+      try {
+        socket.join(roomId);
+        socket.to(roomId).emit('user-connected', userId);
 
-          socket.on('disconnect', () => {
-            socket.to(roomId).emit('user-disconnected', userId);
-          });
+        socket.on('disconnect', () => {
+          socket.to(roomId).emit('user-disconnected', userId);
+        });
 
-        } catch (error) {
-          console.error('Error in join-room event:', error);
-        }
-      });
+      } catch (error) {
+        console.error('Error in join-room event:', error);
+      }
+    });
 });
 
 // Start the server

@@ -42,23 +42,29 @@ if(userRole==null) {
         addVideoStream(video, userVideoStream)
       })
     })
+  })
+} else {
 
-  })} else {
-
-    navigator.mediaDevices.getUserMedia({
-      video: false,
-      audio: true
-    }).then(stream => {
-      mediaStream=stream
-      myPeer.on('call', call => {
-        call.answer(null)
-        const video = document.createElement('video')
-        call.on('stream', userVideoStream => {
-          addVideoStream(video, userVideoStream)
-        })
-      })
+  navigator.mediaDevices.getUserMedia({
+    video: true,
+    audio: true
+  }).then(stream => {
+    mediaStream=stream
+    addVideoStream(myVideo, stream)
+    recordRTC = RecordRTC(stream,{
+      type: 'video'
     });
-  }
+
+    myPeer.on('call', call => {
+      call.answer(stream)
+      const video = document.createElement('video')
+      call.on('stream', userVideoStream => {
+        addVideoStream(video, userVideoStream)
+      })
+    })
+
+  })
+}
 
 
 socket.on('user-connected', async userId => {
@@ -74,7 +80,22 @@ socket.on('user-disconnected', async userId => {
 })
 
 
+// removes user from room on tab close
+// window.addEventListener('beforeunload', (event) => {
+//   event.preventDefault();
+
+//   if (myPeer) {
+//     myPeer.destroy();
+//   }
+
+//   socket.emit('leave-room', ROOM_ID);
+
+//   return 'Are you sure you want to leave?';
+// });
+
+
 myPeer.on('open', id => {
+  console.log("ROOM_ID: ", ROOM_ID, id, userName, userRole);
   socket.emit('join-room', ROOM_ID, id, userName, userRole)
 })
 
@@ -144,14 +165,15 @@ const leaveCallButton = document.getElementById('leaveCallButton');
 
 leaveCallButton.addEventListener('click', () => {
     if(userRole==null){
-    recordRTC.stopRecording(function() {
-        let blob = recordRTC.getBlob();
-        invokeSaveAsDialog(blob);
-    });
-    window.location.href = '/s';}
-    else{
-      window.location.href='/w'
+      recordRTC.stopRecording(function() {
+          let blob = recordRTC.getBlob();
+          invokeSaveAsDialog(blob);
+      });
+      window.location.href = '/' + ROOM_ID + '/waitingRoom';
+    }else{
+      window.location.href='/rw'
     }
+    setUserDataToRoom(user.uid, "second room", ROOM_ID + "/waitingRoom");
 });
 
 
@@ -370,8 +392,8 @@ markCriticalButton.addEventListener('click', () => {
       const notes = notesInput.value;
       pushDataToFirebase(table, sessionID, userRole, userName, notes);
       notesPopup.style.display = 'none';
-    });
+    }); 
   } else {
-    pushDataToFirebase(table, sessionID, 'Participant', userName);
+    pushDataToFirebase(table, sessionID, 'Researcher', userName);
   }
 });

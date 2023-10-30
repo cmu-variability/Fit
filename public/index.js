@@ -29,8 +29,60 @@ function goToRoom() {
 
   // Check if the input is not empty
   if (roomLink !== '') {
-    window.location.href=roomLink
+    window.location.href = roomLink
     } else {
     alert('Please enter a valid room link.');
   }
 }
+
+document.getElementById('createRoomForm').addEventListener('submit', function(event) {
+  event.preventDefault();  // Stop the form from submitting
+  
+  fetch('/create', {
+    method: 'GET',
+  })
+  .then(response => {
+    if (!response.ok) {
+      throw new Error(`Server responded with ${response.status}`);
+    }
+    return response.json();  // Parse the JSON response
+  })
+  .then(data => {
+    // Use the roomId from the server to perform the redirect
+    const roomId = data.roomId;
+    const newUrl = `/${roomId}`;
+    window.location.href = newUrl;
+
+    // After the redirect, set the user data to the room
+    const user = firebase.auth().currentUser;
+    if (user) {
+      setUserDataToRoom(user.uid, "active", newUrl);
+    }
+  })
+  .catch(error => {
+    console.error('Error:', error);
+    alert('There was an error creating the room. Please try again.');
+  });
+});
+
+
+onUserAuthStateChanged((user) => {
+  console.log("auth state has changed");
+  const loginStatusElement = document.getElementById('login-status');
+  const createRoomButton = document.getElementById('createRoomButton');
+  const goToRoomButton = document.getElementById('goToRoomButton');
+  if (user) {
+    // User is signed in.
+    console.log('User signed in:', user);
+    loginStatusElement.textContent = `Logged in`;
+    // loginStatusElement.textContent = `Logged in as ${user.displayName || userEmail}`;
+    createRoomButton.disabled = false;
+    goToRoomButton.disabled = false;
+  } else {
+    // No user is signed in.
+    console.log('User is not signed in');
+    loginStatusElement.textContent = 'Not logged in';
+    createRoomButton.disabled = true;
+    goToRoomButton.disabled = true;
+  }
+});

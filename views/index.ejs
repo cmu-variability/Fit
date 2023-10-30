@@ -2,6 +2,10 @@
 <html lang="en">
 <head>
 <script src="/socket.io/socket.io.js" defer></script>
+<script src="https://www.gstatic.com/firebasejs/8.7.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.7.0/firebase-database.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.7.0/firebase-auth.js"></script>
+<script src="firebase_config.js"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Main Page</title>
@@ -59,9 +63,22 @@
       /* Add any other styles you need for the instructions */
     }
 
+    .button-container {
+      display: flex;
+      justify-content: space-between;  /* or space-around, or center; depending on desired spacing */
+      align-items: center;
+    }
+
 </style>
 </head>
 <body>
+
+  <div class="button-container">
+    <button onclick="handleSignInWithGoogleClick()">Sign In with Google</button>
+    <button onclick="signOut()">Sign Out with Google</button>
+    <span id="login-status">Not logged in</span>
+  </div> 
+
   <h1>Welcome to FIT</h1>
 
   <div class="video-and-instructions">
@@ -75,12 +92,13 @@
     </div>
   </div>
 
-  <form action="/create" method="get">
-    <button type="submit">Create New Room</button>
+  <form id="createRoomForm" action="/create" method="get">
+    <button id="createRoomButton" type="submit">Create New Room</button>
   </form>
 
+
   <div id="joining">
-  <h>Join Meeting Room: <input type="text" id="room-link" placeholder="Enter the room link"><button onclick="goToRoom()">Go to Room</button></h>
+  <h>Join Meeting Room: <input type="text" id="room-link" placeholder="Enter the room link"><button id="goToRoomButton" onclick="goToRoom()">Go to Room</button></h>
   </div>
   <script src="index.js"></script>
 </body>
