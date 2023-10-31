@@ -13,8 +13,6 @@ const urlParams = new URLSearchParams(window.location.search);
 const userName = urlParams.get('userName');
 const userRole = urlParams.get('userRole');
 
-console.log(userRole);
-
 //get self video and mute it
 const myVideo = document.createElement('video')
 myVideo.muted = true
