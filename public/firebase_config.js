@@ -61,7 +61,9 @@ function pushDataToFirebase(table, sessionID, userRole, userName, notes = null) 
     if (!addedKeys.has(key)) {
       // Add the key to the set to track that it has been added
       addedKeys.add(key);
-      updateTableWithNewData(table, newData, userName);
+      if (table != null) {
+        updateTableWithNewData(table, newData, userName);
+      }
     }
   });
 
