@@ -66,7 +66,6 @@ if(userRole==null) {
   })
 }
 
-
 socket.on('user-connected', async userId => {
   connectToNewUser(userId, mediaStream);
   await updateRoomUsers(); // Fetch and update room users
@@ -78,7 +77,6 @@ socket.on('user-disconnected', async userId => {
   }
   await updateRoomUsers(); // Fetch and update room users
 })
-
 
 // removes user from room on tab close
 // window.addEventListener('beforeunload', (event) => {
@@ -160,33 +158,45 @@ copyButton.addEventListener('click', () => {
 
 //when first half of the meeting end:
 //participant click leave call button to go to the second phase
-//researcher click leave call button to see a list of participant that are in the second phase
+
 const leaveCallButton = document.getElementById('leaveCallButton');
 
 leaveCallButton.addEventListener('click', () => {
-    if(userRole==null){
-      recordRTC.stopRecording(function() {
-          let blob = recordRTC.getBlob();
-          invokeSaveAsDialog(blob);
-      });
-      window.location.href = '/' + ROOM_ID + '/waitingRoom';
-    }else{
-      window.location.href='/rw'
-    } 
+    if (userRole === null) {
+        recordRTC.stopRecording(function () {
+            let blob = recordRTC.getBlob();
+            storeRecordedVideoOnServer(blob)
+                .then(() => {
+                    window.location.href = '/' + ROOM_ID + '/waitingRoom';
+                })
+                .catch(error => {
+                    console.error('Error processing video and redirecting:', error);
+                });
+        });
+    } else {
+        window.location.href = '/rw';
+    }
     setUserDataToRoom(user.uid, "second room", ROOM_ID + "/waitingRoom");
 });
 
+function storeRecordedVideoOnServer(blob) {
+    const formData = new FormData();
+    formData.append('video', blob, 'meeting_record.webm');
 
-//for recording
-function invokeSaveAsDialog(file) {
-  var fileUrl = URL.createObjectURL(file);
-  var a = document.createElement('a');
-  a.href = fileUrl;
-  a.download = 'meeting_record.webm';
-  a.click();
-
-  // Release the object URL to free up resources
-  URL.revokeObjectURL(fileUrl);
+    return fetch(`/store-video/${ROOM_ID}`, {
+        method: 'POST',
+        body: formData,
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Failed to store video on server');
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log('Video stored on server:', data);
+        // Optionally, perform other actions
+    });
 }
 
 //mute mic and camera
