@@ -172,7 +172,7 @@ leaveCallButton.addEventListener('click', () => {
       window.location.href = '/' + ROOM_ID + '/waitingRoom';
     }else{
       window.location.href='/rw'
-    }
+    } 
     setUserDataToRoom(user.uid, "second room", ROOM_ID + "/waitingRoom");
 });
 
@@ -390,10 +390,10 @@ markCriticalButton.addEventListener('click', () => {
     notesPopup.style.display = 'block';
     continueButton.addEventListener('click', () => {
       const notes = notesInput.value;
-      pushDataToFirebase(table, sessionID, userRole, userName, notes);
+      pushDataToFirebase(table, sessionID, 'Researcher', userName, notes);
       notesPopup.style.display = 'none';
     }); 
   } else {
-    pushDataToFirebase(table, sessionID, 'Researcher', userName);
+    pushDataToFirebase(table, sessionID, 'Participant', userName);
   }
 });

@@ -16,18 +16,20 @@ const database = firebase.database();
 let dataToStore;
 
 // Define the updateTableWithNewData function
-function updateTableWithNewData(table, newData) {
+function updateTableWithNewData(table, newData, userName) {
   // Create a new table row
   const newRow = table.insertRow();
 
   // Create cells for the table row
   const timeCell = newRow.insertCell(0);
-  const researcherCell = newRow.insertCell(1);
-  const commentCell = newRow.insertCell(2);
+  const userRoleCell = newRow.insertCell(1);
+  const userNameCell = newRow.insertCell(2);
+  const commentCell = newRow.insertCell(3);
 
   // Populate the cells with the new data
   timeCell.textContent = newData.timestamp;
-  researcherCell.textContent = newData.username;
+  userRoleCell.textContent = newData.role;
+  userNameCell.textContent = userName + ' (' + newData.username + ')';
   commentCell.textContent = newData.notes;   
 }
 
@@ -45,16 +47,26 @@ function pushDataToFirebase(table, sessionID, userRole, userName, notes = null) 
   };
 
   // Reference to the location where data is stored (can change this if data should be separated)
-  const criticalMomentsRef = database.ref('criticalMoments').child(sessionID);
+  const criticalMomentsRef = database.ref('criticalMoments').child(sessionID).child(user.uid);
+
+  // Keep track of keys that have been added to the table
+  const addedKeys = new Set();
 
   // Listen for changes to the specified session's data
   criticalMomentsRef.on('child_added', snapshot => {
     const newData = snapshot.val();
-    const userRoleLower = userRole?.toLowerCase() || '';
-    if (userRoleLower === "researcher") {
-      updateTableWithNewData(table, newData);
+    const key = snapshot.key;
+
+    // Check if the key is already in the table
+    if (!addedKeys.has(key)) {
+      // Add the key to the set to track that it has been added
+      addedKeys.add(key);
+      if (table != null) {
+        updateTableWithNewData(table, newData, userName);
+      }
     }
   });
+
 
   // Check if the reference exists
   criticalMomentsRef.once('value', snapshot => {

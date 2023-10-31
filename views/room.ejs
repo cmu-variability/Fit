@@ -183,13 +183,14 @@
     </div>
   </div>
 
-  <% if (userRole != null && userRole.toLowerCase() === 'researcher') { %>
+  <% if (userRole != null) { %>
     <div class="researcher-table">
       <h2>Marking Table</h2>
       <table class ="data-table">
         <tr>
           <th>Time</th>
-          <th>Researcher</th>
+          <th>Role</th>
+          <th>Username</th>
           <th>Comment</th>
         </tr>
       </table>
