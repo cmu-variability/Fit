@@ -158,42 +158,21 @@ function setUserDataToNoRoom() {
 });
 }
 
-
-// Function to sign in with Google
-function signInWithGoogle() {
-  const provider = new firebase.auth.GoogleAuthProvider();
-  // Add custom parameters to the Google provider
-  provider.setCustomParameters({
-    hd: 'andrew.cmu.edu', // Specify the allowed email domain
-  });
-
-  return auth.signInWithPopup(provider);
-}
-
-// Function to sign out
-function signOut() {
-  console.log("user has signed out");
-  return firebase.auth().signOut();
-}
-
-// for callbacks in room specific js files
-function onUserAuthStateChanged(callback) {
-  auth.onAuthStateChanged(callback);
-}
-
-// reads current URL of user and moves to them
-function checkCurrentUserURL() {
-
-}
-
-// Function to handle Google Sign-In button click
-function handleSignInWithGoogleClick() {
-  signInWithGoogle().then(() => {
-    // User is signed in successfully, you can perform additional actions if needed
-    checkCurrentUserURL();
-    console.log('User signed in with Google successfully');
-  }).catch((error) => {
-    console.error('Error signing in with Google:', error);
-    alert('Error signing in with Google. Please try again.');
-  });
+function connectToFirebase(email, password) {
+  // Check if the user is already authenticated
+  if (auth.currentUser) {
+    console.log('User is already signed in.');
+    // Perform any additional actions needed for an authenticated user
+    // Redirect or show content, for example
+  } else {
+    // If not authenticated, sign in with Google
+    auth.signInWithEmailAndPassword(email, password).then(() => {
+      console.log('User signed in successfully');
+      // Perform any additional actions needed for a newly signed-in user
+      // Redirect or show content, for example
+    }).catch((error) => {
+      console.error('Error signing in.', error);
+      alert('Error connecting to Firebase. Please try again.');
+    });
+  }
 }
