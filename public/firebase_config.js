@@ -176,3 +176,25 @@ function connectToFirebase(email, password) {
     });
   }
 }
+
+// Function to authenticate user
+function checkValidCredentials(username, password) {
+  const usersLoginsRef = firebase.database().ref("userLogins");
+
+  // Check if the username exists in the database
+  usersLoginsRef.child(username).once("value")
+    .then(snapshot => {
+      const user = snapshot.val();
+
+      if (user && user.password === password) {
+        // Authentication successful
+        console.log("Valid credentials");
+      } else {
+        // Authentication failed
+        console.log("Invalid username or password");
+      }
+    })
+    .catch(error => {
+      console.error("Error during authentication:", error.message);
+    });
+}
