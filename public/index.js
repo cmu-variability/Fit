@@ -24,14 +24,29 @@ startVideo();
 
 //Function to join a room by pasting the room link and hit go button
 function goToRoom() {
-  const roomLinkInput = document.getElementById('room-link');
-  const roomLink = roomLinkInput.value.trim();
+  const username = sessionStorage.getItem('username');
+  const groupNumber = sessionStorage.getItem('groupNumber');
 
-  // Check if the input is not empty
-  if (roomLink !== '') {
-    window.location.href = roomLink
-    } else {
-    alert('Please enter a valid room link.');
+  // Check if the necessary data is available in session storage
+  if (username && groupNumber) {
+    const groupRef = database.ref(`groups/${groupNumber}`);
+
+    // Check if the room exists for the group
+    groupRef.child('room').once('value')
+      .then(roomSnapshot => {
+        const roomId = roomSnapshot.val();
+        console.log
+        if (roomId) {
+          window.location.href = `http://localhost:3000/${roomId}`;
+        } else {
+          alert('Room not found. Please create a room or check the link.');
+        }
+      })
+      .catch(error => {
+        console.error('Error checking room:', error.message);
+      });
+  } else {
+    console.error('Username or groupNumber not found in sessionStorage');
   }
 }
 
