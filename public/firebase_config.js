@@ -130,14 +130,29 @@ function redirectToIndexPage() {
   }
 }
 
-function setUserDataToRoom(uid, status, url) {
-  userInfoRef.child(uid).set({ status: status, url: url})
-    .then(() => {
-      console.log('User status set to', status);
-    })
-    .catch(error => {
-      console.error('Error updating user status:', error);
-    });
+function setUserDataToRoom(roomId, newUrl) {
+  const username = sessionStorage.getItem('username');
+  const groupNumber = sessionStorage.getItem('groupNumber');
+
+  if (username && groupNumber) {
+    const groupRef = database.ref(`groups/${groupNumber}`);
+    // Check if the room already exists for the group
+    groupRef.child('room').once('value')
+      .then(roomSnapshot => {
+        const existingRoom = roomSnapshot.val();
+        if (!existingRoom) {
+          // Update the room information for the group only if it doesn't exist
+          groupRef.update({ room: roomId });
+        }
+        // Redirect to the new room now that data is updated
+        window.location.href = newUrl;
+      })
+      .catch(error => {
+        console.error('Error checking existing room:', error.message);
+      });
+  } else {
+    console.error('userId or groupNumber not found in sessionStorage');
+  }
 }
 
 function setUserDataToSecondRoom() {
@@ -189,6 +204,8 @@ function checkValidCredentials(username, password) {
       if (user && user.password === password) {
         // Authentication successful
         console.log("Valid credentials");
+        sessionStorage.setItem('username', username);
+        window.location.href = '/index';
       } else {
         // Authentication failed
         console.log("Invalid username or password");

@@ -35,38 +35,30 @@ function goToRoom() {
   }
 }
 
-document.getElementById('createRoomForm').addEventListener('submit', function(event) {
-  event.preventDefault();  // Stop the form from submitting
-  
-  fetch('/create', {
-    method: 'GET',
-  })
-  .then(response => {
-    if (!response.ok) {
-      throw new Error(`Server responded with ${response.status}`);
-    }
-    return response.json();  // Parse the JSON response
-  })
-  .then(data => {
-    // Use the roomId from the server to perform the redirect
-    const roomId = data.roomId;
-    const newUrl = `/${roomId}`;
-    window.location.href = newUrl;
-
-    // After the redirect, set the user data to the room
-    const user = firebase.auth().currentUser;
-    if (user) {
-      setUserDataToRoom(user.uid, "active", newUrl);
-    }
-  })
-  .catch(error => {
-    console.error('Error:', error);
-    alert('There was an error creating the room. Please try again.');
-  });
+document.addEventListener('DOMContentLoaded', function() {
+  document.getElementById('createRoomForm').addEventListener('submit', function(event) {
+    event.preventDefault();
+    fetch('/create', {
+      method: 'GET',
+    })
+    .then(response => response.json())
+    .then(data => {
+      const roomId = data.roomId;
+      const newUrl = `/${roomId}`;  
+      const user = firebase.auth().currentUser;
+      if (user) {
+        // Updates room data and sends user to the room
+        setUserDataToRoom(roomId, newUrl);
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      alert('There was an error creating the room. Please try again.');
+    });
+  });  
 });
 
-
-onUserAuthStateChanged((user) => {
+authonUserAuthStateChanged((user) => {
   console.log("auth state has changed");
   const loginStatusElement = document.getElementById('login-status');
   const createRoomButton = document.getElementById('createRoomButton');
@@ -86,3 +78,36 @@ onUserAuthStateChanged((user) => {
     goToRoomButton.disabled = true;
   }
 });
+
+// Function to check if the user's group has a room assigned
+function checkGroupRoom() {
+  const userLoginsRef = firebase.database().ref(`userLogins/${sessionStorage.getItem('username')}`);
+  
+  userLoginsRef.once("value")
+    .then(snapshot => {
+      const groupNumber = snapshot.child("group").val();
+      sessionStorage.setItem('groupNumber', groupNumber);
+
+      // Check if the group has a room assigned
+      const groupsRef = firebase.database().ref(`groups/${groupNumber}`);
+      groupsRef.once("value")
+        .then(groupSnapshot => {
+          const roomExists = groupSnapshot.child("room").exists();
+
+          // Display or hide buttons based on room existence
+          if (roomExists) {
+            document.getElementById("createRoomForm").style.display = "none";
+            document.getElementById("joining").style.display = "block";
+          } else {
+            document.getElementById("createRoomForm").style.display = "block";
+            document.getElementById("joining").style.display = "none";
+          }
+        })
+        .catch(error => {
+          console.error("Error checking group room:", error.message);
+        });
+    })
+    .catch(error => {
+      console.error("Error checking user group:", error.message);
+    });
+}
