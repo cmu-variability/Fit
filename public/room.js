@@ -165,7 +165,7 @@ leaveCallButton.addEventListener('click', () => {
     if (userRole === null) {
         recordRTC.stopRecording(function () {
             let blob = recordRTC.getBlob();
-            storeRecordedVideoOnServer(blob)
+            storeRecordedVideoInFirebase(blob)
                 .then(() => {
                     window.location.href = '/' + ROOM_ID + '/waitingRoom';
                 })
@@ -176,29 +176,9 @@ leaveCallButton.addEventListener('click', () => {
     } else {
         window.location.href = '/rw';
     }
-    setUserDataToRoom(user.uid, "second room", ROOM_ID + "/waitingRoom");
+    // setUserDataToRoom(user.uid, "second room", ROOM_ID + "/waitingRoom");
 });
-
-function storeRecordedVideoOnServer(blob) {
-    const formData = new FormData();
-    formData.append('video', blob, 'meeting_record.webm');
-
-    return fetch(`/store-video/${ROOM_ID}`, {
-        method: 'POST',
-        body: formData,
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('Failed to store video on server');
-        }
-        return response.json();
-    })
-    .then(data => {
-        console.log('Video stored on server:', data);
-        // Optionally, perform other actions
-    });
-}
-
+ 
 //mute mic and camera
 const toggleMic = document.getElementById('toggle-mic');
 const toggleCamera = document.getElementById('toggle-camera');

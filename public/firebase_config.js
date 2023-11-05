@@ -197,3 +197,30 @@ function handleSignInWithGoogleClick() {
     alert('Error signing in with Google. Please try again.');
   });
 }
+
+function storeRecordedVideoInFirebase(blob) {
+  return new Promise((resolve, reject) => {
+    const storageRef = firebase.storage().ref();
+    
+    // Generate a unique name for the video
+    const videoFileName = `videos/${ROOM_ID}/meeting_record.webm`;
+    const videoRef = storageRef.child(videoFileName);
+
+    // Upload the video blob to Firebase Storage
+    videoRef.put(blob).then((snapshot) => {
+      console.log('Video uploaded successfully!');
+      
+      // Get the download URL for the uploaded video
+      videoRef.getDownloadURL().then((downloadURL) => {
+        console.log('Download URL:', downloadURL);
+        resolve();
+      }).catch((error) => {
+        console.error('Error getting download URL:', error);
+        reject(error);
+      });
+    }).catch((error) => {
+      console.error('Error uploading video:', error);
+      reject(error);
+    });
+  });
+}

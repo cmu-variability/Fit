@@ -1,75 +1,13 @@
 // Require the necessary modules
 const express = require('express');
-const multer = require('multer');
-const fs = require('fs');
 const { v4: uuidv4 } = require('uuid');
 const app = express();
 const server = require('http').createServer(app);
 const io = require('socket.io')(server);
-const possibleUserNames = [
-  "Lazy Lion", "Gritty Goon", "Pretty Penguin", "Jolly Jaguar", "Brave Bear", "Witty Walrus", 
-  "Daring Deer", "Eager Elephant", "Zealous Zebra", "Calm Camel", "Silly Squirrel", "Curious Cat",
-  "Merry Monkey", "Rugged Rhino", "Quick Quokka", "Fancy Fox", "Happy Hippo", "Tiny Tiger", "Giddy Gorilla",
-  "Bouncy Bunny", "Adventurous Ant", "Playful Panda", "Keen Kangaroo", "Vibrant Vulture", "Noble Nightingale"
-];
 
 app.set('view engine', 'ejs');
 
 app.use(express.static('public'));
-
-// Configure Multer for handling video uploads
-const storage = multer.memoryStorage();
-const upload = multer({ storage: storage });
-
-app.post('/store-video/:roomId', upload.single('video'), (req, res) => {
-  try {
-    const roomId = req.params.roomId; 
-    const videoData = req.file.buffer;
-
-    // Ensure the videos folder exists
-    const videosFolderPath = './videos';
-    if (!fs.existsSync(videosFolderPath)) {
-        fs.mkdirSync(videosFolderPath);
-    }
-
-    // Create a folder for the room if it doesn't exist
-    const roomFolderPath = `./videos/${roomId}`;
-    if (!fs.existsSync(roomFolderPath)) {
-        fs.mkdirSync(roomFolderPath);
-    }
-
-    const videoFilePath = `./videos/${roomId}/meeting_record.webm`;
-
-    // Save the video data to a file
-    fs.writeFileSync(videoFilePath, videoData);
-
-    console.log(`Video for room ${roomId} stored at: ${videoFilePath}`);
-
-    res.json({ success: true });
-  } catch (error) {
-    console.error('Error storing video:', error);
-    res.status(500).json({ success: false, error: 'Internal Server Error' });
-  }
-});
-
-// Retrieving the stored videos
-app.get('/get-video/:roomId', (req, res) => {
-  const roomId = req.params.roomId;
-  const videoPath = `./videos/${roomId}/meeting_record.webm`;
-
-  console.log('Attempting to retrieve video from path:', videoPath);
-
-  if (fs.existsSync(videoPath)) {
-    console.log('Video file found.');
-    const videoData = fs.readFileSync(videoPath);
-    res.contentType('video/webm');
-    res.send(videoData);
-  } else {
-    console.log('Video file not found.');
-    res.status(404).send('Video not found');
-  }
-});
-
 
 // Define the index page route
 app.get('/', (req, res) => {
