@@ -130,14 +130,29 @@ function redirectToIndexPage() {
   }
 }
 
-function setUserDataToRoom(uid, status, url) {
-  userInfoRef.child(uid).set({ status: status, url: url})
-    .then(() => {
-      console.log('User status set to', status);
-    })
-    .catch(error => {
-      console.error('Error updating user status:', error);
-    });
+function setUserDataToRoom(roomId, newUrl) {
+  const username = sessionStorage.getItem('username');
+  const groupNumber = sessionStorage.getItem('groupNumber');
+
+  if (username && groupNumber) {
+    const groupRef = database.ref(`groups/${groupNumber}`);
+    // Check if the room already exists for the group
+    groupRef.child('room').once('value')
+      .then(roomSnapshot => {
+        const existingRoom = roomSnapshot.val();
+        if (!existingRoom) {
+          // Update the room information for the group only if it doesn't exist
+          groupRef.update({ room: roomId });
+        }
+        // Redirect to the new room now that data is updated
+        window.location.href = newUrl;
+      })
+      .catch(error => {
+        console.error('Error checking existing room:', error.message);
+      });
+  } else {
+    console.error('userId or groupNumber not found in sessionStorage');
+  }
 }
 
 function setUserDataToSecondRoom() {
@@ -158,42 +173,45 @@ function setUserDataToNoRoom() {
 });
 }
 
-
-// Function to sign in with Google
-function signInWithGoogle() {
-  const provider = new firebase.auth.GoogleAuthProvider();
-  // Add custom parameters to the Google provider
-  provider.setCustomParameters({
-    hd: 'andrew.cmu.edu', // Specify the allowed email domain
-  });
-
-  return auth.signInWithPopup(provider);
+function connectToFirebase(email, password) {
+  // Check if the user is already authenticated
+  if (auth.currentUser) {
+    console.log('User is already signed in.');
+    // Perform any additional actions needed for an authenticated user
+    // Redirect or show content, for example
+  } else {
+    // If not authenticated, sign in with Google
+    auth.signInWithEmailAndPassword(email, password).then(() => {
+      console.log('User signed in successfully');
+      // Perform any additional actions needed for a newly signed-in user
+      // Redirect or show content, for example
+    }).catch((error) => {
+      console.error('Error signing in.', error);
+      alert('Error connecting to Firebase. Please try again.');
+    });
+  }
 }
 
-// Function to sign out
-function signOut() {
-  console.log("user has signed out");
-  return firebase.auth().signOut();
-}
+// Function to authenticate user
+function checkValidCredentials(username, password) {
+  const usersLoginsRef = firebase.database().ref("userLogins");
 
-// for callbacks in room specific js files
-function onUserAuthStateChanged(callback) {
-  auth.onAuthStateChanged(callback);
-}
+  // Check if the username exists in the database
+  usersLoginsRef.child(username).once("value")
+    .then(snapshot => {
+      const user = snapshot.val();
 
-// reads current URL of user and moves to them
-function checkCurrentUserURL() {
-
-}
-
-// Function to handle Google Sign-In button click
-function handleSignInWithGoogleClick() {
-  signInWithGoogle().then(() => {
-    // User is signed in successfully, you can perform additional actions if needed
-    checkCurrentUserURL();
-    console.log('User signed in with Google successfully');
-  }).catch((error) => {
-    console.error('Error signing in with Google:', error);
-    alert('Error signing in with Google. Please try again.');
-  });
+      if (user && user.password === password) {
+        // Authentication successful
+        console.log("Valid credentials");
+        sessionStorage.setItem('username', username);
+        window.location.href = '/index';
+      } else {
+        // Authentication failed
+        console.log("Invalid username or password");
+      }
+    })
+    .catch(error => {
+      console.error("Error during authentication:", error.message);
+    });
 }

@@ -4,19 +4,19 @@ const { v4: uuidv4 } = require('uuid');
 const app = express();
 const server = require('http').createServer(app);
 const io = require('socket.io')(server);
-const possibleUserNames = [
-  "Lazy Lion", "Gritty Goon", "Pretty Penguin", "Jolly Jaguar", "Brave Bear", "Witty Walrus", 
-  "Daring Deer", "Eager Elephant", "Zealous Zebra", "Calm Camel", "Silly Squirrel", "Curious Cat",
-  "Merry Monkey", "Rugged Rhino", "Quick Quokka", "Fancy Fox", "Happy Hippo", "Tiny Tiger", "Giddy Gorilla",
-  "Bouncy Bunny", "Adventurous Ant", "Playful Panda", "Keen Kangaroo", "Vibrant Vulture", "Noble Nightingale"
-];
+const config = require('./config'); 
 
 app.set('view engine', 'ejs');
 
 app.use(express.static('public'));
 
-// Define the index page route
+// Define the login page route
 app.get('/', (req, res) => {
+  res.render('login', { email: config.email, password: config.password });
+});
+
+// Define the index page route
+app.get('/index', (req, res) => {
   res.render('index');
 });
 
@@ -27,16 +27,6 @@ app.get('/r', (req, res) => {
 
 const secondActiveRooms = {};
 
-// trying to get rid of this, just having one /s room
-// app.get('/s', (req, res) => {
-//   const roomId = uuidv4();
-//   secondActiveRooms[roomId] = {
-//     users: []
-//   };
-
-//   res.render('second_phase',{roomId});
-// });
-
 app.get('/:roomId/waitingRoom', (req, res) => {
   const roomId = req.params.roomId;
   secondActiveRooms[roomId] = {
@@ -45,9 +35,7 @@ app.get('/:roomId/waitingRoom', (req, res) => {
   res.render('second_phase', { roomId });
 });
 
-
-//Define the route that show a list of open waiting rooms
-//currently not being used
+// Define the route that show a list of open waiting rooms not being used
 app.get('/rw',(req,res)=>{
   res.render('researcher_waiting',{secondActiveRooms})
 });

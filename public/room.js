@@ -66,7 +66,6 @@ if(userRole==null) {
   })
 }
 
-
 socket.on('user-connected', async userId => {
   connectToNewUser(userId, mediaStream);
   await updateRoomUsers(); // Fetch and update room users
