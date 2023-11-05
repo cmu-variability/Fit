@@ -229,6 +229,7 @@ function storeRecordedVideoInFirebase(blob) {
       reject(error);
     });
   });
+}
 
 // Function to authenticate user
 function checkValidCredentials(username, password) {
