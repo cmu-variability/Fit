@@ -111,11 +111,11 @@ io.on('connection', socket => {
 
         // Get the names of the users in the room
         const userNamesInRoom = activeRooms[roomId].users.map(user => user.userName);
-        // let availableUserNames = possibleUserNames.filter(name => !userNamesInRoom.includes(name));
+        let availableUserNames = possibleUserNames.filter(name => !userNamesInRoom.includes(name));
         
         // // Find an available name from possibleUserNames
-        // let randomIndex = Math.floor(Math.random() * availableUserNames.length);
-        // let randomName = availableUserNames[randomIndex];
+        let randomIndex = Math.floor(Math.random() * availableUserNames.length);
+        let randomName = availableUserNames[randomIndex];
 
         if (!userName) {
           userName = randomName;
