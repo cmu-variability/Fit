@@ -87,20 +87,13 @@
   </div>
 
 
-  <!-- <script>  
-    // Call the function when the page loads
-    checkGroupRoom();
-  </script> -->
+  <button id="enterRoomButton" onclick="checkGroupRoom()">Enter Room</button>
 
-  <form id="createRoomForm" action="/create" method="get">
-    <button id="createRoomButton" type="submit">Create New Room</button>
-  </form>
-
-  <div id="joining">
+  <div id="joining" style="display: none;">
     <p>Your partner is waiting in the room.</p>
-    <button id="goToRoomButton" onclick="goToRoom()">Go to Room</button>
   </div>
-
+  
 </body>
 <script src="index.js"></script>
 </html>
+
