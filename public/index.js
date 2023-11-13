@@ -1,4 +1,4 @@
-checkGroupRoom();
+// checkGroupRoom();
 // Get the video grid element
 const videoGrid = document.getElementById('video-grid');
 
