@@ -1,3 +1,4 @@
+checkGroupRoom();
 // Get the video grid element
 const videoGrid = document.getElementById('video-grid');
 
@@ -26,6 +27,7 @@ startVideo();
 function goToRoom() {
   const username = sessionStorage.getItem('username');
   const groupNumber = sessionStorage.getItem('groupNumber');
+  console.log(username, groupNumber);
 
   // Check if the necessary data is available in session storage
   if (username && groupNumber) {
@@ -35,7 +37,6 @@ function goToRoom() {
     groupRef.child('room').once('value')
       .then(roomSnapshot => {
         const roomId = roomSnapshot.val();
-        console.log
         if (roomId) {
           window.location.href = `http://localhost:3000/${roomId}`;
         } else {
