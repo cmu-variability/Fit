@@ -50,17 +50,16 @@ function goToRoom() {
   }
 }
 
-document.addEventListener('DOMContentLoaded', function() {
-  document.getElementById('createRoomForm').addEventListener('submit', function(event) {
-    event.preventDefault();
-    fetch('/create', {
-      method: 'GET',
-    })
+function createRoomAndNavigate() {
+  fetch('/create', {
+    method: 'GET',
+  })
     .then(response => response.json())
     .then(data => {
       const roomId = data.roomId;
-      const newUrl = `/${roomId}`;  
+      const newUrl = `/${roomId}`;
       const user = firebase.auth().currentUser;
+
       if (user) {
         // Updates room data and sends user to the room
         setUserDataToRoom(roomId, newUrl);
@@ -70,8 +69,7 @@ document.addEventListener('DOMContentLoaded', function() {
       console.error('Error:', error);
       alert('There was an error creating the room. Please try again.');
     });
-  });  
-});
+}
 
 authonUserAuthStateChanged((user) => {
   console.log("auth state has changed");
@@ -111,11 +109,10 @@ function checkGroupRoom() {
 
           // Display or hide buttons based on room existence
           if (roomExists) {
-            document.getElementById("createRoomForm").style.display = "none";
+            goToRoom()
             document.getElementById("joining").style.display = "block";
           } else {
-            document.getElementById("createRoomForm").style.display = "block";
-            document.getElementById("joining").style.display = "none";
+            createRoomAndNavigate()
           }
         })
         .catch(error => {
