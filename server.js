@@ -6,6 +6,13 @@ const server = require('http').createServer(app);
 const io = require('socket.io')(server);
 const config = require('./config'); 
 
+const possibleUserNames = [
+  "Lazy Lion", "Gritty Goon", "Pretty Penguin", "Jolly Jaguar", "Brave Bear", "Witty Walrus", 
+  "Daring Deer", "Eager Elephant", "Zealous Zebra", "Calm Camel", "Silly Squirrel", "Curious Cat",
+  "Merry Monkey", "Rugged Rhino", "Quick Quokka", "Fancy Fox", "Happy Hippo", "Tiny Tiger", "Giddy Gorilla",
+  "Bouncy Bunny", "Adventurous Ant", "Playful Panda", "Keen Kangaroo", "Vibrant Vulture", "Noble Nightingale"
+];
+
 app.set('view engine', 'ejs');
 
 app.use(express.static('public'));
